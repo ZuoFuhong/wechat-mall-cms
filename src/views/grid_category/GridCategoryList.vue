@@ -22,9 +22,9 @@
               </template>
             </el-table-column>
             <el-table-column prop="title" label="标题" width="150"> </el-table-column>
-            <el-table-column prop="name" label="名称" width="120"> </el-table-column>
-            <el-table-column prop="category" label="分类" width="120"> </el-table-column>
-            <el-table-column label="操作" fixed="right" width="180">
+            <el-table-column prop="name" label="名称" width="150"> </el-table-column>
+            <el-table-column prop="categoryName" label="分类" width="150"> </el-table-column>
+            <el-table-column label="操作" fixed="right" width="230">
               <template slot-scope="scope">
                 <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>
                 <el-button plain size="mini" @click="handleDelete(scope.row)" type="danger">删除</el-button>
@@ -49,6 +49,7 @@
 
 <script>
 import GridCategoryEdit from './GridCategoryEdit'
+import gridCategory from '@/models/grid_category'
 
 export default {
   components: {
@@ -59,39 +60,47 @@ export default {
       loading: false,
       tableData: [],
       pagination: {
-        pageSize: 1,
-        pageTotal: 10,
+        pageSize: 10,
+        pageTotal: 0,
       },
       gridCategoryId: 0,
       showEdit: false,
     }
   },
-  created() {
-    // todo: 加载宫格
-    this.tableData = [
-      {
-        id: 1,
-        picture: 'http://i1.sleeve.7yue.pro/grid/clothing.png',
-        title: '服装',
-        name: '',
-        category: '服装',
-      },
-      {
-        id: 2,
-        picture: 'http://i1.sleeve.7yue.pro/grid/bag.png',
-        title: '包包',
-        name: '',
-        category: '服装',
-      },
-    ]
+  async created() {
+    await this.getGridCategorys()
   },
   methods: {
+    async getGridCategorys() {
+      const res = await gridCategory.getGridCategoryList(1, this.pagination.pageSize)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.tableData = res.list
+        this.pagination.pageTotal = res.total
+      }
+    },
     handleEdit(val) {
       this.gridCategoryId = val.id
       this.showEdit = true
     },
-    handleDelete(val) {
-      console.log('val: ', val)
+    async handleDelete(val) {
+      this.$confirm('此操作将永久删除该宫格, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(async () => {
+        const res = await gridCategory.deleteGridCategory(val.id)
+        if (res.error_code === undefined) {
+          this.getGridCategorys()
+          this.$message({
+            type: 'success',
+            message: '删除成功！',
+          })
+        } else {
+          this.$message.error(`${res.msg}`)
+        }
+      })
     },
     addGridCategory() {
       this.gridCategoryId = 0
@@ -102,6 +111,7 @@ export default {
     },
     editClose() {
       this.showEdit = false
+      this.getGridCategorys()
     },
   },
 }

@@ -6,22 +6,25 @@
     <el-divider></el-divider>
     <div class="wrap">
       <el-row>
-        <el-col :lg="16" :md="20" :sm="24" :xs="24">
-          <el-form :model="form" status-icon ref="form" label-width="100px" v-loading="loading" @submit.native.prevent>
+        <el-col :lg="10" :md="20" :sm="24" :xs="24">
+          <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" v-loading="loading" @submit.native.prevent>
             <el-form-item label="宫格标题" prop="title">
-              <el-input size="medium" v-model="form.title" placeholder="请填写宫格标题"></el-input>
+              <el-input size="medium" v-model="form.title" maxlength="5" show-word-limit placeholder="请填写宫格标题"></el-input>
             </el-form-item>
             <el-form-item label="宫格名" prop="name">
-              <el-input size="medium" v-model="form.name" type="number" placeholder="请填写宫格名"></el-input>
+              <el-input size="medium" v-model="form.name" maxlength="10" show-word-limit placeholder="请填写宫格名"></el-input>
             </el-form-item>
             <el-form-item label="分类" prop="categoryId">
-              <el-select v-model="value" placeholder="请选择">
+              <el-select v-model="form.categoryId" placeholder="请选择">
                 <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="图片" prop="picture">
-              <upload-imgs ref="uploadEle" :rules="rules" :multiple="true" :max-num="1" :animated-check="true" />
+              <upload-imgs
+              :value="initPictureData"
+              :remoteFuc="uploadFile"
+              ref="uploadEle" :rules="fileRules" :multiple="false" :max-num="1" :animated-check="true" />
             </el-form-item>
             <el-form-item class="submit">
               <el-button type="primary" @click="submitForm('form')">保 存</el-button>
@@ -36,21 +39,43 @@
 
 <script>
 import UploadImgs from '@/components/base/upload-imgs'
+import oss from '@/models/oss'
+import category from '@/models/category'
+import gridCategory from '@/models/grid_category'
 
 export default {
   components: {
     UploadImgs,
   },
   data() {
+    const titleFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('宫格标题不能为空'))
+      }
+      callback()
+    }
+    const nameFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('宫格名不能为空'))
+      }
+      callback()
+    }
     return {
       loading: true,
       form: {
         title: '',
         name: '',
-        categoryId: '',
+        categoryId: null,
         picture: '',
       },
+      initPictureData: [],
       rules: {
+        title: [{ validator: titleFunc, trigger: 'blur', required: true }],
+        name: [{ validator: nameFunc, trigger: 'blur', required: true }],
+      },
+      fileRules: {
         // minWidth: 100,
         // minHeight: 100,
         maxSize: 2,
@@ -65,19 +90,12 @@ export default {
       type: Number,
     },
   },
-  created() {
+  async created() {
     console.log(this.gridCategoryId)
-    // todo: 加载分类
-    this.categoryList = [
-      {
-        value: 1,
-        label: '黄金糕',
-      },
-      {
-        value: 2,
-        label: '双皮奶',
-      },
-    ]
+    if (this.gridCategoryId !== 0) {
+      await this.getGridCategory(this.gridCategoryId)
+    }
+    await this.getCategoryList()
     this.loading = false
   },
   computed: {
@@ -86,11 +104,48 @@ export default {
     },
   },
   methods: {
+    async getGridCategory(id) {
+      const res = await gridCategory.getGridCategory(id)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.form = {
+          title: res.title,
+          name: res.name,
+          categoryId: res.categoryId,
+          picture: res.picture
+        }
+        this.initPictureData = [
+          {
+            id: res.id,
+            display: res.picture
+          }
+        ]
+      }
+    },
+    async getCategoryList() {
+      const res = await category.getCategoryList(0, 1, 100)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        for (let i = 0; i < res.list.length; i++) {
+          this.categoryList.push({
+            value: res.list[i].id,
+            label: res.list[i].name
+          })
+        }
+      }
+    },
     back() {
       this.$emit('editClose')
     },
     async getUploadFile(name) {
-      console.log(await this.$refs[name].getValue())
+      return this.$refs[name].getValue()
+    },
+    // 重写插件中上传文件
+    async uploadFile(file, call) {
+      const data = await oss.uploadFileToOSS(file, 'assets/')
+      call(data)
     },
     // 清理上传的图片
     clearUploadFile() {
@@ -98,23 +153,41 @@ export default {
     },
     async submitForm(formName) {
       try {
-        console.log(this.value)
-        console.log(this.form)
-        // todo: 上传图片
-        // http://demo.lin.colorful3.com/cms/file
-        // params: file_0: (binary)
-        // response: [{"id":1085,"key":"file_0","path":"2020/03/04/db3f6584-5d574.png","url":"http://demo.lin.colb574.png"}]
-        this.getUploadFile('uploadEle')
-
-        // 建模，添加Banner
-        // const res = await book.addBook(this.form)
-        const res = {}
-        if (res.error_code === 0) {
-          this.$message.success(`${res.msg}`)
+        const files = await this.getUploadFile('uploadEle')
+        if (this.form.title === '') {
+          this.$message.error('宫格标题为必填项！')
+          return
+        }
+        if (this.form.name === '') {
+          this.$message.error('宫格名为必填项！')
+          return
+        }
+        if (!this.form.categoryId) {
+          this.$message.error('请选择分类！')
+          return
+        }
+        if (files.length === 0) {
+          this.$message.error('请上传图片！')
+          return
+        }
+        console.log(files)
+        const postData = {
+          id: this.gridCategoryId,
+          title: this.form.title,
+          name: this.form.name,
+          categoryId: this.form.categoryId,
+          picture: files[0].display
+        }
+        const res = await gridCategory.editGridCategory(postData)
+        if (res.error_code !== undefined) {
+          this.$message.error(`${res.msg}`)
+        } else {
+          this.$message.success('操作成功！')
           this.resetForm(formName)
+          this.clearUploadFile()
+          this.back()
         }
       } catch (error) {
-        this.$message.error(error.data.msg)
         console.log(error)
       }
     },
