@@ -181,30 +181,6 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
-    addBannerItem() {
-      this.bannerItemId = 0
-      this.showEdit = true
-    },
-    handleEdit(val) {
-      console.log('val: ', val)
-      this.bannerItemId = val.id
-      this.showEdit = true
-    },
-    handleDelete(val) {
-      console.log(val)
-      this.$confirm('此操作将永久删除改BannerItem, 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }).then(async () => {
-        console.log('val: ', val)
-        // todo: 建模，删除bannerItem，刷新BannerItem列表
-      })
-    },
-    editClose() {
-      this.showEdit = false
-      // todo: 重新加载item列表
-    },
   },
 }
 </script>

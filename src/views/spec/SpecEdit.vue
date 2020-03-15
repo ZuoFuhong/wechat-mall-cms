@@ -8,6 +8,7 @@
             <el-row>
               <el-col :lg="16" :md="20" :sm="24" :xs="24">
                 <el-form
+                  :rules="rules"
                   :model="form"
                   status-icon
                   ref="form"
@@ -27,7 +28,8 @@
                   <el-form-item label="是否标准" prop="standard">
                     <el-switch
                       style="display: inline-flex; align-items: center; line-height: 20px; vertical-align: middle; height: 20px;"
-                      v-model="form.standard"
+                      v-model="form.standardStatus"
+                      @change="doSwitchStandard"
                       active-color="#13ce66"
                       inactive-color="#ff4949"
                       active-text="非标准"
@@ -60,7 +62,7 @@
                 style="width: 100%"
               >
                 <el-table-column prop="id" label="id" width="80"></el-table-column>
-                <el-table-column prop="name" label="规格值名称" width="150"></el-table-column>
+                <el-table-column prop="value" label="规格值名称" width="150"></el-table-column>
                 <el-table-column prop="extend" label="扩展" width="120"> </el-table-column>
                 <el-table-column label="操作" fixed="right" width="180">
                   <template slot-scope="scope">
@@ -83,18 +85,33 @@
         </el-col>
       </el-row>
     </div>
-    <spec-attr-edit v-else @editClose="editClose" :specAttrId="specAttrId"></spec-attr-edit>
+    <spec-attr-edit v-else @editClose="editClose" :specId="specId" :specAttrId="specAttrId"></spec-attr-edit>
   </div>
 </template>
 
 <script>
 import SpecAttrEdit from './SpecAttrEdit'
+import Spec from '@/models/spec'
 
 export default {
   components: {
     SpecAttrEdit,
   },
   data() {
+    const nameFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('规格名名称不能为空'))
+      }
+      callback()
+    }
+    const unitFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('单位不能为空'))
+      }
+      callback()
+    }
     return {
       loading: true,
       form: {
@@ -102,52 +119,82 @@ export default {
         description: '',
         unit: '',
         standard: '',
+        standardStatus: false
       },
       pagination: {
-        pageSize: 1,
-        pageTotal: 10,
+        pageSize: 10,
+        pageTotal: 0,
       },
       tableData: [],
       specAttrId: 0,
       showEdit: false,
+      rules: {
+        name: [{ validator: nameFunc, trigger: 'blur', required: true }],
+        unit: [{ validator: unitFunc, trigger: 'blur', required: true }],
+      },
+      specId: 0
     }
   },
-  created() {
-    console.log('specId: ', this.$route.params.id)
+  async created() {
+    const specId = parseInt(this.$route.params.id, 10)
+    this.specId = specId
+    console.log(specId)
+    await this.getSpec(specId)
+    await this.getSpecAttrList(specId)
     this.loading = false
-    this.tableData = [
-      {
-        id: 1,
-        name: '青蓝色',
-        extend: '',
-      },
-      {
-        id: 2,
-        name: '蓝色',
-        extend: '',
-      },
-    ]
   },
   methods: {
-    async submitForm(formName) {
+    async getSpec(specId) {
+      const res = await Spec.getSpec(specId)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.form = {
+          name: res.name,
+          description: res.description,
+          unit: res.unit,
+          standard: res.standard,
+          standardStatus: res.standard === 1
+        }
+      }
+    },
+    async getSpecAttrList(specId) {
+      const res = await Spec.getSpecAttrList(specId)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.tableData = res
+      }
+    },
+    doSwitchStandard(val) {
+      this.form.standard = val ? 1 : 0
+    },
+    async submitForm() {
       try {
-        console.log(this.value)
-        console.log(this.form)
-        // todo: 上传图片
-        // http://demo.lin.colorful3.com/cms/file
-        // params: file_0: (binary)
-        // response: [{"id":1085,"key":"file_0","path":"2020/03/04/db3f6584-5d574.png","url":"http://demo.lin.colb574.png"}]
-        this.getUploadFile('uploadEle')
-
-        // 建模，添加Banner
-        // const res = await book.addBook(this.form)
-        const res = {}
-        if (res.error_code === 0) {
-          this.$message.success(`${res.msg}`)
-          this.resetForm(formName)
+        if (this.form.name === '') {
+          this.$message.error('规格名名称为必填项！')
+          return
+        }
+        if (this.form.unit === '') {
+          this.$message.error('单位为必填项！')
+          return
+        }
+        const postData = {
+          id: this.specId,
+          name: this.form.name,
+          description: this.form.description,
+          unit: this.form.unit,
+          standard: this.form.standard
+        }
+        console.log(postData)
+        const res = await Spec.editSpec(postData)
+        if (res.error_code !== undefined) {
+          this.$message.error(`${res.msg}`)
+        } else {
+          this.$message.success('添加成功！')
+          this.getSpec(this.specId)
         }
       } catch (error) {
-        this.$message.error(error.data.msg)
         console.log(error)
       }
     },
@@ -164,10 +211,23 @@ export default {
       this.showEdit = true
     },
     handleDelete(val) {
-      console.log('val: ', val)
+      this.$confirm('此操作将永久删除该属性, 是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(async () => {
+        const res = await Spec.deleteSpecAttr(val.id)
+        if (res.error_code !== undefined) {
+          this.$message.error(`${res.msg}`)
+        } else {
+          this.$message.success('删除成功！')
+          this.getSpecAttrList(this.specId)
+        }
+      })
     },
     editClose() {
       this.showEdit = false
+      this.getSpecAttrList(this.specId)
     },
     currentChange(page) {
       console.log(page)

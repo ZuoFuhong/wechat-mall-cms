@@ -3,21 +3,22 @@
     <div class="title">新建规格名</div>
     <div class="wrap">
       <el-row>
-        <el-col :lg="16" :md="20" :sm="24" :xs="24">
-          <el-form :model="form" status-icon ref="form" label-width="100px" v-loading="loading" @submit.native.prevent>
+        <el-col :lg="10" :md="20" :sm="24" :xs="24">
+          <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" v-loading="loading" @submit.native.prevent>
             <el-form-item label="规格名名称" prop="name">
-              <el-input size="medium" v-model="form.name" placeholder="请填写规格名名称"></el-input>
+              <el-input size="medium" v-model="form.name" maxlength="5" show-word-limit placeholder="请填写规格名名称"></el-input>
             </el-form-item>
             <el-form-item label="规格名描述" prop="description">
               <el-input size="medium" v-model="form.description" placeholder="请填写规格名描述"></el-input>
             </el-form-item>
             <el-form-item label="单位" prop="unit">
-              <el-input size="medium" v-model="form.unit" placeholder="请填写单位，如：英寸"></el-input>
+              <el-input size="medium" v-model="form.unit" maxlength="5" show-word-limit placeholder="请填写单位，如：英寸"></el-input>
             </el-form-item>
             <el-form-item label="是否标准" prop="standard">
               <el-switch
                 style="display: inline-flex; align-items: center; line-height: 20px; vertical-align: middle; height: 20px;"
-                v-model="form.standard"
+                @change="doSwitchStandard"
+                v-model="form.standardStatus"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 active-text="非标准"
@@ -37,16 +38,37 @@
 </template>
 
 <script>
+import Spec from '@/models/spec'
+
 export default {
   data() {
+    const nameFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('规格名名称不能为空'))
+      }
+      callback()
+    }
+    const unitFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('单位不能为空'))
+      }
+      callback()
+    }
     return {
       loading: true,
       form: {
         name: '',
         description: '',
         unit: '',
-        standard: '',
+        standardStatus: false,
+        standard: 0,
       },
+      rules: {
+        name: [{ validator: nameFunc, trigger: 'blur', required: true }],
+        unit: [{ validator: unitFunc, trigger: 'blur', required: true }],
+      }
     }
   },
   created() {
@@ -55,25 +77,35 @@ export default {
   methods: {
     async submitForm(formName) {
       try {
-        console.log(this.value)
+        if (this.form.name === '') {
+          this.$message.error('规格名名称为必填项！')
+          return
+        }
+        if (this.form.unit === '') {
+          this.$message.error('单位为必填项！')
+          return
+        }
         console.log(this.form)
-        // todo: 上传图片
-        // http://demo.lin.colorful3.com/cms/file
-        // params: file_0: (binary)
-        // response: [{"id":1085,"key":"file_0","path":"2020/03/04/db3f6584-5d574.png","url":"http://demo.lin.colb574.png"}]
-        this.getUploadFile('uploadEle')
-
-        // 建模，添加Banner
-        // const res = await book.addBook(this.form)
-        const res = {}
-        if (res.error_code === 0) {
-          this.$message.success(`${res.msg}`)
+        const postData = {
+          id: 0,
+          name: this.form.name,
+          description: this.form.description,
+          unit: this.form.unit,
+          standard: this.form.standard
+        }
+        const res = await Spec.editSpec(postData)
+        if (res.error_code !== undefined) {
+          this.$message.error(`${res.msg}`)
+        } else {
+          this.$message.success('添加成功！')
           this.resetForm(formName)
         }
       } catch (error) {
-        this.$message.error(error.data.msg)
         console.log(error)
       }
+    },
+    doSwitchStandard(val) {
+      this.form.standard = val ? 1 : 0
     },
     // 重置表单
     resetForm(formName) {

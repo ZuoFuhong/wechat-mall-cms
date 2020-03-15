@@ -15,7 +15,7 @@
           <el-table-column prop="name" label="名称" width="150"> </el-table-column>
           <el-table-column prop="description" label="描述" width="275"> </el-table-column>
           <el-table-column prop="unit" label="单位" width="150"> </el-table-column>
-          <el-table-column prop="standard" label="标准" width="150"> </el-table-column>
+          <el-table-column prop="standard" :formatter="formatStatus" label="标准" width="150"> </el-table-column>
           <el-table-column label="操作" fixed="right" width="180">
             <template slot-scope="scope">
               <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>
@@ -38,46 +38,59 @@
 </template>
 
 <script>
+import Spec from '@/models/spec'
+
 export default {
   components: {},
   data() {
     return {
-      loading: false,
+      loading: true,
       tableData: [],
       pagination: {
-        pageSize: 1,
-        pageTotal: 10,
+        pageSize: 10,
+        pageTotal: 0,
       },
       specId: 0,
     }
   },
-  created() {
-    this.tableData = [
-      {
-        id: 1,
-        name: '颜色',
-        description: '',
-        unit: '英寸',
-        standard: '是',
-      },
-      {
-        id: 2,
-        name: '颜色',
-        description: '',
-        unit: '英寸',
-        standard: '是',
-      },
-    ]
+  async created() {
+    await this.getSpecList(1, this.pagination.pageSize)
+    this.loading = false
   },
   methods: {
+    async getSpecList(pageNum, pageSize) {
+      const res = await Spec.getSpecList(pageNum, pageSize)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.tableData = res.list
+        this.pagination.pageTotal = res.total
+      }
+    },
+    formatStatus(row) {
+      return row.online === 1 ? '标准' : '非标准'
+    },
     handleEdit(val) {
       this.$router.push(`/spec/edit/${val.id}`)
     },
     handleDelete(val) {
-      console.log('val: ', val)
+      console.log(val)
+      this.$confirm('此操作将永久删除改规格, 是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(async () => {
+        const res = await Spec.deleteSpec(val.id)
+        if (res.error_code !== undefined) {
+          this.$message.error(`${res.msg}`)
+        } else {
+          this.$message.success('删除成功！')
+          this.getSpecList(1, this.pagination.pageSize)
+        }
+      })
     },
-    currentChange(page) {
-      console.log(page)
+    currentChange(pageNum) {
+      this.getSpecList(pageNum, this.pagination.pageSize)
     },
   },
 }

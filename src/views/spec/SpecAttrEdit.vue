@@ -7,8 +7,9 @@
       </div>
       <div class="wrap">
         <el-row>
-          <el-col :lg="16" :md="20" :sm="24" :xs="24">
+          <el-col :lg="10" :md="20" :sm="24" :xs="24">
             <el-form
+              :rules="rules"
               :model="form"
               status-icon
               ref="form"
@@ -17,7 +18,7 @@
               @submit.native.prevent
             >
               <el-form-item label="规格值名称" prop="value">
-                <el-input size="medium" v-model="form.value" placeholder="请填写规格值名称"></el-input>
+                <el-input size="medium" v-model="form.value" maxlength="10" show-word-limit placeholder="请填写规格值名称"></el-input>
               </el-form-item>
               <el-form-item label="扩展" prop="extend">
                 <el-input size="medium" v-model="form.extend" placeholder="请填写规格值扩展"></el-input>
@@ -35,48 +36,80 @@
 </template>
 
 <script>
+import Spec from '@/models/spec'
+
 export default {
   props: {
     specAttrId: {
       type: Number,
     },
+    specId: {
+      type: Number
+    }
   },
   data() {
+    const valueFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('规格名名称不能为空'))
+      }
+      callback()
+    }
     return {
       loading: true,
       form: {
         value: '',
         extend: '',
       },
+      rules: {
+        value: [{ validator: valueFunc, trigger: 'blur', required: true }],
+      }
     }
   },
-  created() {
-    this.loading = false
+  async created() {
+    console.log(this.specId)
     console.log(this.specAttrId)
+    if (this.specAttrId !== 0) {
+      await this.getSpecAttr(this.specAttrId)
+    }
+    this.loading = false
   },
   methods: {
+    async getSpecAttr(specAttrId) {
+      const res = await Spec.getSpecAttr(specAttrId)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.form = {
+          value: res.value,
+          extend: res.extend
+        }
+      }
+    },
     back() {
       this.$emit('editClose')
     },
     async submitForm(formName) {
       try {
-        console.log(this.value)
-        console.log(this.form)
-        // todo: 上传图片
-        // http://demo.lin.colorful3.com/cms/file
-        // params: file_0: (binary)
-        // response: [{"id":1085,"key":"file_0","path":"2020/03/04/db3f6584-5d574.png","url":"http://demo.lin.colb574.png"}]
-        this.getUploadFile('uploadEle')
-
-        // 建模，添加Banner
-        // const res = await book.addBook(this.form)
-        const res = {}
-        if (res.error_code === 0) {
-          this.$message.success(`${res.msg}`)
+        if (this.form.value === '') {
+          this.$message.error('规格值名称为必填字段！')
+          return
+        }
+        const postData = {
+          id: this.specAttrId,
+          specId: this.specId,
+          value: this.form.value,
+          extend: this.form.extend
+        }
+        const res = await Spec.editSpecAttr(postData)
+        if (res.error_code !== undefined) {
+          this.$message.error(`${res.msg}`)
+        } else {
+          this.$message.success('操作成功！')
           this.resetForm(formName)
+          this.back()
         }
       } catch (error) {
-        this.$message.error(error.data.msg)
         console.log(error)
       }
     },
