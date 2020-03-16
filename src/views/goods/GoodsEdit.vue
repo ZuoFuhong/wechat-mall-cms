@@ -340,7 +340,9 @@ export default {
       if (res.error_code !== undefined) {
         this.$message.error(`${res.msg}`)
       } else {
-        this.checkedSpecs = res
+        for (let i = 0; i < res.length; i++) {
+          this.checkedSpecs.push(res[i].specId)
+        }
       }
     },
     // 事件-切换一级分类

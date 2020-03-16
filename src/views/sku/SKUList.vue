@@ -23,7 +23,7 @@
             </el-table-column>
             <el-table-column prop="title" label="标题" width="150"> </el-table-column>
             <el-table-column prop="price" label="价格（元）" width="150"> </el-table-column>
-            <el-table-column prop="online" label="是否上架" width="150"> </el-table-column>
+            <el-table-column prop="online" :formatter="formatOnline" label="是否上架" width="120"> </el-table-column>
             <el-table-column prop="code" label="编码" width="150"> </el-table-column>
             <el-table-column prop="stock" label="库存（个）" width="150"> </el-table-column>
             <el-table-column label="操作" fixed="right" width="180">
@@ -51,6 +51,7 @@
 
 <script>
 import SkuEdit from './SKUEdit'
+import Sku from '@/models/sku'
 
 export default {
   components: {
@@ -61,37 +62,27 @@ export default {
       loading: true,
       tableData: [],
       pagination: {
-        pageSize: 1,
-        pageTotal: 10,
+        pageSize: 10,
+        pageTotal: 0,
       },
       showEdit: false,
       skuId: 0,
     }
   },
-  created() {
+  async created() {
+    await this.getSkuList(1, this.pagination.pageSize)
     this.loading = false
-    this.tableData = [
-      {
-        id: 1,
-        picture: 'http://i1.sleeve.7yue.pro/32ba82d0-4fbe-4bbb-b833-fdc8d397bb34.png',
-        title: '青锋大碗',
-        price: '19.98',
-        online: '是',
-        code: '123',
-        stock: 20,
-      },
-      {
-        id: 2,
-        picture: 'http://i1.sleeve.7yue.pro/32ba82d0-4fbe-4bbb-b833-fdc8d397bb34.png',
-        title: '青锋大碗2',
-        price: '19.98',
-        online: '是',
-        code: '123',
-        stock: 20,
-      },
-    ]
   },
   methods: {
+    async getSkuList(page, size) {
+      const res = await Sku.getSkuList(page, size)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.tableData = res.list
+        this.pagination.pageTotal = res.total
+      }
+    },
     addSKU() {
       this.skuId = 0
       this.showEdit = true
@@ -100,17 +91,34 @@ export default {
       this.skuId = val.id
       this.showEdit = true
     },
-    handleDelete(val) {
-      // todo: 请求
-      console.log('val: ', val)
+    async handleDelete(val) {
+      this.$confirm('此操作将永久删除该Sku, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(async () => {
+        const res = await Sku.deleteSku(val.id)
+        if (res.error_code === undefined) {
+          this.getSkuList(1, this.pagination.pageSize)
+          this.$message({
+            type: 'success',
+            message: '删除成功！',
+          })
+        } else {
+          this.$message.error(`${res.msg}`)
+        }
+      })
     },
     editClose() {
       this.showEdit = false
+      this.getSkuList(1, this.pagination.pageSize)
     },
-    currentChange(page) {
-      // todo: 切换分页
-      console.log('page: ', page)
+    currentChange(pageNum) {
+      this.getSkuList(pageNum, this.pagination.pageSize)
     },
+    formatOnline(row) {
+      return row.online === 1 ? '上架' : '下架'
+    }
   },
 }
 </script>

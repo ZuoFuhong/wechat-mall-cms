@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     async getGoodsList(page, size) {
-      const res = await goods.getGoodsList(page, size)
+      const res = await goods.getGoodsList(0, page, size)
       if (res.error_code !== undefined) {
         this.$message.error(`${res.msg}`)
       } else {
