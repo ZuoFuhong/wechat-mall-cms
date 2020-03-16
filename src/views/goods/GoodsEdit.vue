@@ -8,106 +8,71 @@
       <div class="wrap">
         <el-row>
           <el-col :lg="16" :md="20" :sm="24" :xs="24">
-            <el-form :model="form" status-icon ref="form" label-width="100px" @submit.native.prevent>
+            <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" @submit.native.prevent>
               <el-form-item label="标题" prop="title">
-                <el-input size="medium" v-model="form.title" placeholder="请填写标题"></el-input>
-              </el-form-item>
-              <el-form-item label="副标题" prop="subTitle">
-                <el-input size="medium" v-model="form.subTitle" placeholder="请填写副标题"></el-input>
+                <el-input size="medium" v-model="form.title" maxlength="15" placeholder="请填写标题"></el-input>
               </el-form-item>
               <el-form-item label="价格" prop="price">
-                <el-input size="medium" v-model="form.price" placeholder="请填写价格"></el-input>
+                <el-input-number v-model="form.price" :precision="2" :step="1" :min="0.01" :max="10000" label="价格"></el-input-number>
               </el-form-item>
               <el-form-item label="折扣" prop="discountPrice">
-                <el-input size="medium" v-model="form.discountPrice" placeholder="请填写折扣"></el-input>
+                <el-input-number v-model="form.discountPrice" :precision="2" :step="0.1" :min="0" :max="0.99" label="价格"></el-input-number>
               </el-form-item>
               <el-form-item label="分类" prop="categoryId">
-                <el-select v-model="form.categoryId" placeholder="请选择">
+                <el-select v-model="form.categoryId" placeholder="请选择分类" @change="doSelectCategory">
                   <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-              </el-form-item>
-              <el-form-item label="默认sku" prop="defaultSkuId">
-                <el-select v-model="form.defaultSkuId" placeholder="请选择">
-                  <el-option v-for="item in skuList" :key="item.value" :label="item.label" :value="item.value">
+                <el-select v-model="form.subCategoryId" placeholder="请选择子分类" :disabled="subCategoryDisaled" style="margin-left: 20px;">
+                  <el-option v-for="item in subCategoryList" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item label="主图" prop="picture">
+                <upload-imgs
+                :value="initPictureData"
+                :remoteFuc="uploadFile"
+                ref="pictureEle"
+                :rules="fileRules"
+                :multiple="false" :max-num="1" :animated-check="true" />
+              </el-form-item>
+              <el-form-item label="轮播图" prop="bannerPicture">
+                <upload-imgs
+                  :value="initBannerPictureData"
+                  :remoteFuc="uploadFile"
+                  ref="bannerPictureEle"
+                  :rules="fileRules"
+                  :multiple="false"
+                  :max-num="5"
+                  :animated-check="true"
+                />
+              </el-form-item>
+              <el-form-item label="详情图" prop="detailPicture">
+                <upload-imgs
+                  :value="initDetailPictureData"
+                  :remoteFuc="uploadFile"
+                  ref="detailPictureEle"
+                  :rules="fileRules"
+                  :multiple="false"
+                  :max-num="8"
+                  :animated-check="true"
+                />
+              </el-form-item>
+              <el-form-item label="选择规格" prop="specId">
+                <el-checkbox-group v-model="checkedSpecs">
+                  <el-checkbox v-for="spec in specList" :label="spec.id" :key="spec.id">{{ spec.name }}</el-checkbox>
+                </el-checkbox-group>
+              </el-form-item>
               <el-form-item label="是否上架" prop="online">
                 <el-switch
-                  style="display: inline-flex; align-items: center; line-height: 20px; vertical-align: middle; height: 20px;"
-                  v-model="form.online"
+                  v-model="onlineStatus"
+                  @change="doSwitchOnlineEvent"
                   active-color="#13ce66"
                   inactive-color="#ff4949"
                   active-text="上架"
                   inactive-text="下架"
                 >
                 </el-switch>
-              </el-form-item>
-              <el-form-item label="主图" prop="picture">
-                <upload-imgs ref="pictureEle" :rules="rules" :multiple="true" :max-num="1" :animated-check="true" />
-              </el-form-item>
-              <el-form-item label="主题图" prop="forThemePicture">
-                <upload-imgs
-                  ref="themePictureEle"
-                  :rules="rules"
-                  :multiple="true"
-                  :max-num="1"
-                  :animated-check="true"
-                />
-              </el-form-item>
-              <el-form-item label="轮播图" prop="bannerPicture">
-                <upload-imgs
-                  ref="bannerPictureEle"
-                  :rules="rules"
-                  :multiple="true"
-                  :max-num="1"
-                  :animated-check="true"
-                />
-              </el-form-item>
-              <el-form-item label="详情图" prop="detailPicture">
-                <upload-imgs
-                  ref="detailPictureEle"
-                  :rules="rules"
-                  :multiple="true"
-                  :max-num="1"
-                  :animated-check="true"
-                />
-              </el-form-item>
-              <el-form-item label="标签" prop="tags">
-                <el-tag
-                  :key="tag"
-                  v-for="tag in goodsTags"
-                  closable
-                  :disable-transitions="false"
-                  @close="handleClose(tag)"
-                >
-                  {{ tag }}
-                </el-tag>
-                <el-input
-                  class="input-new-tag"
-                  v-if="inputVisible"
-                  v-model="inputValue"
-                  ref="saveTagInput"
-                  size="small"
-                  @keyup.enter.native="handleInputConfirm"
-                  @blur="handleInputConfirm"
-                >
-                </el-input>
-                <el-button v-else class="button-new-tag" size="small" @click="showInput">添加标签</el-button>
-              </el-form-item>
-              <el-form-item label="选择规格" prop="specId">
-                <el-checkbox-group v-model="form.checkedSpecs" @change="handleCheckedSpecChange">
-                  <el-checkbox v-for="spec in specs" :label="spec.name" :key="spec.id">{{ spec.name }}</el-checkbox>
-                </el-checkbox-group>
-              </el-form-item>
-              <el-form-item label="可视规格" prop="sketchSpecId">
-                <el-select v-model="form.defaultSkuId" placeholder="请选择">
-                  <el-option v-for="item in specs" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="描述" prop="description">
-                <el-input size="medium" v-model="form.description" placeholder="请填写描述"></el-input>
               </el-form-item>
               <el-form-item class="submit">
                 <el-button type="primary" @click="submitForm('form')">保 存</el-button>
@@ -123,73 +88,67 @@
 
 <script>
 import UploadImgs from '@/components/base/upload-imgs'
+import goods from '@/models/goods'
+import oss from '@/models/oss'
+import category from '@/models/category'
+import Spec from '@/models/spec'
 
 export default {
   components: {
     UploadImgs,
   },
   data() {
+    const titleFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('标题不能为空'))
+      }
+      callback()
+    }
+    const priceFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('价格不能为空'))
+      }
+      callback()
+    }
     return {
       loading: true,
       form: {
+        id: 0,
+        brandName: '',
         title: '',
-        subTitle: '',
-        price: '',
-        discountPrice: '',
-        categoryId: 0,
-        defaultSkuId: 0,
-        online: '',
+        price: 0,
+        discountPrice: 0,
+        categoryId: null,
+        subCategoryId: null,
+        online: 0,
         picture: '',
-        forThemePicture: '',
         bannerPicture: '',
         detailPicture: '',
-        tags: '',
-        description: '',
-        checkedSpecs: ['尺寸', '颜色'],
+        tags: ''
       },
+      onlineStatus: false,
       rules: {
+        title: [{ validator: titleFunc, trigger: 'blur', required: true }],
+        price: [{ validator: priceFunc, trigger: 'blur', required: true }],
+      },
+      fileRules: {
         // minWidth: 100,
         // minHeight: 100,
         maxSize: 2,
         allowAnimated: 1,
       },
-      goodsTags: ['标签一', '标签二', '标签三'],
       inputVisible: false,
       inputValue: '',
-      specs: [
-        {
-          id: 1,
-          name: '尺寸',
-        },
-        {
-          id: 2,
-          name: '颜色',
-        },
-        {
-          id: 3,
-          name: '品牌',
-        },
-      ],
-      categoryList: [
-        {
-          value: 1,
-          label: '服装',
-        },
-        {
-          value: 2,
-          label: '衣帽',
-        },
-      ],
-      skuList: [
-        {
-          value: 1,
-          label: '青峰·5寸',
-        },
-        {
-          value: 2,
-          label: '白羽·3.5寸',
-        },
-      ],
+      specList: [],
+      checkedSpecs: [],
+      categoryList: [],
+      subCategoryList: [],
+      initPictureData: [],
+      initBannerPictureData: [],
+      initDetailPictureData: [],
+      subCategoryDisaled: true
     }
   },
   props: {
@@ -197,9 +156,18 @@ export default {
       type: Number,
     },
   },
-  created() {
-    this.loading = false
+  async created() {
     console.log('goodsId: ', this.goodsId)
+    if (this.goodsId !== 0) {
+      await this.getGoods(this.goodsId)
+    }
+    await this.getCategory()
+    if (this.form.categoryId) {
+      await this.getSubCategory(this.form.categoryId)
+    }
+    await this.getSpecList()
+    await this.getGoodsSpec(this.goodsId)
+    this.loading = false
   },
   computed: {
     title() {
@@ -207,30 +175,211 @@ export default {
     },
   },
   methods: {
+    async submitForm(formName) {
+      try {
+        const pictureFiles = await this.getUploadFile('pictureEle')
+        const bannerPictureFiles = await this.getUploadFile('bannerPictureEle')
+        const detailPicturepictureFiles = await this.getUploadFile('detailPictureEle')
+        if (this.form.title === '') {
+          this.$message.error('标题为必填项！')
+          return
+        }
+        if (!this.form.price) {
+          this.$message.error('售价不能为空！')
+          return
+        }
+        if (this.form.price < 0.01) {
+          this.$message.error('售价大于0.01')
+          return
+        }
+        if (!this.form.categoryId) {
+          this.$message.error('请选择分类！')
+          return
+        }
+        if (!this.form.subCategoryId) {
+          this.$message.error('请选择子分类！')
+          return
+        }
+        if (pictureFiles.length === 0) {
+          this.$message.error('请上传主图！')
+          return
+        }
+        if (bannerPictureFiles.length === 0) {
+          this.$message.error('至少上传一张轮播图！')
+          return
+        }
+        if (detailPicturepictureFiles.length === 0) {
+          this.$message.error('至少上传一张详情图！')
+          return
+        }
+        const picture = pictureFiles[0].display
+        const bannerPicture = []
+        for (let i = 0; i < bannerPictureFiles.length; i++) {
+          bannerPicture.push(bannerPictureFiles[i].display)
+        }
+        const detailPicture = []
+        for (let i = 0; i < detailPicturepictureFiles.length; i++) {
+          detailPicture.push(detailPicturepictureFiles[i].display)
+        }
+        const postData = {
+          id: this.goodsId,
+          brandName: this.form.brandName,
+          title: this.form.title,
+          price: (this.form.price).toString(),
+          discountPrice: (this.form.discountPrice).toString(),
+          categoryId: this.form.subCategoryId,
+          online: this.form.online,
+          picture,
+          bannerPicture: JSON.stringify(bannerPicture),
+          detailPicture: JSON.stringify(detailPicture),
+          tags: '',
+          description: '',
+          specList: this.checkedSpecs
+        }
+        const res = await goods.editGoods(postData)
+        if (res.error_code !== undefined) {
+          this.$message.error(`${res.msg}`)
+        } else {
+          this.$message.success('操作成功！')
+          this.resetForm(formName)
+          this.back()
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    // 重置表单
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
+    },
+    async getGoods(goodsId) {
+      const res = await goods.getGoods(goodsId)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.form = res
+        if (res.categoryId === 0) {
+          this.form.categoryId = null
+        }
+        if (res.subCategoryId === 0) {
+          this.form.subCategoryId = null
+        }
+        this.onlineStatus = res.online === 1
+        this.initPictureData = [
+          {
+            id: res.id,
+            display: res.picture
+          }
+        ]
+        const bannerPicture = JSON.parse(res.bannerPicture)
+        for (let i = 0; i < bannerPicture.length; i++) {
+          this.initBannerPictureData.push({
+            id: i,
+            display: bannerPicture[i]
+          })
+        }
+        const detailPicture = JSON.parse(res.detailPicture)
+        for (let i = 0; i < detailPicture.length; i++) {
+          this.initDetailPictureData.push({
+            id: i,
+            display: detailPicture[i]
+          })
+        }
+      }
+    },
+    async getCategory() {
+      const res = await category.getCategoryList(0, 1, 100)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        const len = res.list.length
+        for (let i = 0; i < len; i++) {
+          const item = res.list[i]
+          this.categoryList.push({
+            value: item.id,
+            label: item.name
+          })
+        }
+      }
+    },
+    // 查询子分类
+    async getSubCategory(pid) {
+      console.log('pid: ', pid)
+      const res = await category.getCategoryList(pid, 1, 100)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.subCategoryList = []
+        for (let i = 0; i < res.list.length; i++) {
+          const item = res.list[i]
+          this.subCategoryList.push({
+            value: item.id,
+            label: item.name
+          })
+        }
+        this.subCategoryDisaled = false
+      }
+    },
+    // 所有规格
+    async getSpecList() {
+      const res = await Spec.getSpecList(1, 100)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        for (let i = 0; i < res.list.length; i++) {
+          this.specList.push({
+            id: res.list[i].id,
+            name: res.list[i].name
+          })
+        }
+      }
+    },
+    // 商品-规格
+    async getGoodsSpec(goodsId) {
+      const res = await goods.getGoodsSpec(goodsId)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.checkedSpecs = res
+      }
+    },
+    // 事件-切换一级分类
+    async doSelectCategory(val) {
+      const res = await category.getCategoryList(val, 1, 100)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.form.subCategoryId = null
+        this.subCategoryList = []
+        for (let i = 0; i < res.list.length; i++) {
+          const item = res.list[i]
+          this.subCategoryList.push({
+            value: item.id,
+            label: item.name
+          })
+        }
+        this.subCategoryDisaled = false
+      }
+    },
+    async getUploadFile(name) {
+      return this.$refs[name].getValue()
+    },
+    // 重写插件中上传文件
+    async uploadFile(file, call) {
+      const data = await oss.uploadFileToOSS(file, 'assets/')
+      call(data)
+    },
+    // 清理上传的图片
+    clearUploadFile(name) {
+      this.$refs[name].clear()
+    },
     back() {
       this.$emit('editClose')
     },
-    handleClose(tag) {
-      this.goodsTags.splice(this.goodsTags.indexOf(tag), 1)
-    },
-    showInput() {
-      this.inputVisible = true
-      this.$nextTick(() => {
-        this.$refs.saveTagInput.$refs.input.focus()
-      })
-    },
-    handleInputConfirm() {
-      const tmpValue = this.inputValue
-      if (tmpValue) {
-        this.goodsTags.push(tmpValue)
-      }
-      this.inputVisible = false
-      this.inputValue = ''
-    },
-    handleCheckedSpecChange(value) {
-      const checkedCount = value.length
-      console.log(checkedCount)
-    },
+    doSwitchOnlineEvent(val) {
+      console.log(val)
+      this.form.online = val ? 1 : 0
+    }
   },
 }
 </script>
@@ -265,20 +414,5 @@ export default {
     -webkit-box-align: center;
     align-items: center;
   }
-}
-.el-tag + .el-tag {
-  margin-left: 10px;
-}
-.button-new-tag {
-  margin-left: 10px;
-  height: 32px;
-  line-height: 30px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.input-new-tag {
-  width: 90px;
-  margin-left: 10px;
-  vertical-align: bottom;
 }
 </style>

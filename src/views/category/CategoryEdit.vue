@@ -167,7 +167,6 @@ export default {
       this.$refs.uploadEle.clear()
     },
     changeOnlineEvent(val) {
-      this.onlineBool = val
       this.form.online = val ? 1 : 0
     },
     async submitForm(formName) {

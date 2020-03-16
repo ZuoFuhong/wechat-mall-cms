@@ -16,16 +16,15 @@
             style="width: 100%"
           >
             <el-table-column prop="id" label="id" width="80"></el-table-column>
-            <el-table-column prop="picture" label="图片" width="180">
+            <el-table-column prop="picture" label="图片" width="150">
               <template slot-scope="scope">
                 <img class="categoryPicture" :src="scope.row.picture" alt="" />
               </template>
             </el-table-column>
-            <el-table-column prop="title" label="标题" width="150"> </el-table-column>
-            <el-table-column prop="subTitle" label="副标题" width="150"> </el-table-column>
-            <el-table-column prop="category" label="分类" width="150"> </el-table-column>
+            <el-table-column prop="title" label="标题" width="280"> </el-table-column>
+            <el-table-column prop="categoryName" label="分类" width="150"> </el-table-column>
             <el-table-column prop="price" label="价格（元）" width="150"> </el-table-column>
-            <el-table-column prop="online" label="是否上架" width="150"> </el-table-column>
+            <el-table-column prop="online" :formatter="formatOnline" label="是否上架" width="150"> </el-table-column>
             <el-table-column label="操作" fixed="right" width="180">
               <template slot-scope="scope">
                 <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>
@@ -51,6 +50,7 @@
 
 <script>
 import GoodsEdit from './GoodsEdit'
+import goods from '@/models/goods'
 
 export default {
   components: {
@@ -61,37 +61,30 @@ export default {
       loading: true,
       tableData: [],
       pagination: {
-        pageSize: 1,
-        pageTotal: 10,
+        pageSize: 10,
+        pageTotal: 0,
       },
       showEdit: false,
       goodsId: 0,
     }
   },
-  created() {
+  async created() {
+    await this.getGoodsList(1, this.pagination.pageSize)
     this.loading = false
-    this.tableData = [
-      {
-        id: 1,
-        picture: 'http://i1.sleeve.7yue.pro/32ba82d0-4fbe-4bbb-b833-fdc8d397bb34.png',
-        title: '青锋大碗',
-        subTitle: '凡凡倾情推荐',
-        category: '餐具',
-        price: '10.10',
-        online: '是',
-      },
-      {
-        id: 2,
-        picture: 'http://i1.sleeve.7yue.pro/2d8d42c3-2b41-458b-8e09-48be6890c13f.png',
-        title: '印花桌布',
-        subTitle: '生活需要仪式感',
-        category: '服装',
-        price: '19.10',
-        online: '是',
-      },
-    ]
   },
   methods: {
+    async getGoodsList(page, size) {
+      const res = await goods.getGoodsList(page, size)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.tableData = res.list
+        this.pagination.pageTotal = res.total
+      }
+    },
+    formatOnline(row) {
+      return row.online === 1 ? '上架' : '下架'
+    },
     addGoods() {
       this.goodsId = 0
       this.showEdit = true
@@ -101,15 +94,29 @@ export default {
       this.showEdit = true
     },
     handleDelete(val) {
-      // todo: 请求
-      console.log('val: ', val)
+      this.$confirm('此操作将永久删除该商品, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(async () => {
+        const res = await goods.deleteGoods(val.id)
+        if (res.error_code === undefined) {
+          this.getGoodsList(1, this.pagination.pageSize)
+          this.$message({
+            type: 'success',
+            message: '删除成功！',
+          })
+        } else {
+          this.$message.error(`${res.msg}`)
+        }
+      })
     },
     editClose() {
       this.showEdit = false
+      this.getGoodsList(1, this.pagination.pageSize)
     },
-    currentChange(page) {
-      // todo: 切换分页
-      console.log('page: ', page)
+    currentChange(pageNum) {
+      this.getGoodsList(pageNum, this.pagination.pageSize)
     },
   },
 }

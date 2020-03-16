@@ -3,7 +3,7 @@ import bannerConfig from './banner'
 import categoryConfig from './category'
 import gridCategoryConfig from './grid_category'
 import specConfig from './spec'
-import spuConfig from './spu'
+import goodsConfig from './goods'
 import skuConfig from './sku'
 import pluginsConfig from './plugins'
 import Utils from '@/lin/utils/util'
@@ -33,7 +33,7 @@ let homeRouter = [
   categoryConfig,
   gridCategoryConfig,
   specConfig,
-  spuConfig,
+  goodsConfig,
   skuConfig,
   adminConfig,
 ]

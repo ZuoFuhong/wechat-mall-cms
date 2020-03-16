@@ -128,7 +128,6 @@ export default {
           this.$message.error(`${res.msg}`)
         }
       } catch (error) {
-        this.$message.error(error.data.msg)
         console.log(error)
       }
     },

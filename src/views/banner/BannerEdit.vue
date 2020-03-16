@@ -173,7 +173,6 @@ export default {
           this.$message.error(`${res.msg}`)
         }
       } catch (error) {
-        this.$message.error(error)
         console.log(error)
       }
     },

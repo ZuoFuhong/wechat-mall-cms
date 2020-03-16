@@ -1,22 +1,22 @@
 const spuRouter = {
   route: null,
   name: null,
-  title: 'SPU管理',
+  title: '商品管理',
   type: 'folder', // 类型: folder, tab, view
   icon: 'el-icon-s-shop',
-  filePath: 'views/spu/', // 文件路径
+  filePath: 'views/goods/', // 文件路径
   order: null,
   inNav: true,
   children: [
     {
-      title: 'SPU列表',
+      title: '商品列表',
       type: 'view',
-      name: 'spuList',
-      route: '/spu/list',
-      filePath: 'views/spu/SPUList.vue',
+      name: 'goodsList',
+      route: '/goods/list',
+      filePath: 'views/goods/GoodsList.vue',
       inNav: true,
       icon: '',
-    },
+    }
   ],
 }
 
