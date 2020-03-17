@@ -16,25 +16,7 @@ const bannerRouter = {
       filePath: 'views/banner/BannerList.vue',
       inNav: true,
       icon: 'el-icon-postcard',
-    },
-    {
-      title: '添加Banner',
-      type: 'view',
-      name: 'bannerAdd',
-      route: '/banner/add',
-      filePath: 'views/banner/BannerAdd.vue',
-      inNav: true,
-      icon: 'el-icon-postcard',
-    },
-    {
-      title: '编辑Banner',
-      type: 'view',
-      name: 'bannerEdit',
-      route: '/banner/edit/:id',
-      filePath: 'views/banner/BannerEdit.vue',
-      inNav: false,
-      icon: 'el-icon-postcard',
-    },
+    }
   ],
 }
 
