@@ -15,7 +15,7 @@ const spuRouter = {
       route: '/goods/list',
       filePath: 'views/goods/GoodsList.vue',
       inNav: true,
-      icon: '',
+      icon: 'el-icon-s-shop',
     }
   ],
 }

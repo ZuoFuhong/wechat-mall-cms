@@ -3,7 +3,7 @@ const couponRouter = {
   name: null,
   title: '优惠券管理',
   type: 'folder', // 类型: folder, tab, view
-  icon: 'el-icon-bank-card',
+  icon: 'el-icon-s-ticket',
   filePath: 'views/coupon/', // 文件路径
   order: null,
   inNav: true,
@@ -15,7 +15,7 @@ const couponRouter = {
       route: '/coupon/list',
       filePath: 'views/coupon/CouponList.vue',
       inNav: true,
-      icon: 'iconfont icon-tushuguanli',
+      icon: 'el-icon-s-ticket',
     }
   ],
 }

@@ -70,12 +70,12 @@ export default {
     }
   },
   async created() {
-    await this.getCategorys()
+    await this.getCategorys(0, 1, this.pagination.pageSize)
     this.loading = false
   },
   methods: {
-    async getCategorys() {
-      const res = await category.getCategoryList(0, 1, this.pagination.pageSize)
+    async getCategorys(pid, pageNum, pageSize) {
+      const res = await category.getCategoryList(pid, pageNum, pageSize)
       if (res.error_code !== undefined) {
         this.$message.error(`查询异常: ${res.msg}`)
       } else {
@@ -100,7 +100,6 @@ export default {
       await this.getCategorys()
     },
     handleEdit(val) {
-      console.log('val:', val)
       this.categoryId = val.id
       this.showEdit = true
     },
@@ -120,14 +119,8 @@ export default {
         }
       })
     },
-    async currentChange(pageNum) {
-      const res = await category.getCategoryList(0, pageNum, this.pagination.pageSize)
-      if (res.error_code !== undefined) {
-        this.$message.error(`查询异常: ${res.msg}`)
-      } else {
-        this.tableData = res.list
-        this.pagination.pageTotal = res.total
-      }
+    currentChange(pageNum) {
+      this.getCategorys(0, pageNum, this.pagination.pageSize)
     },
   },
 }

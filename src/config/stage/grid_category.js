@@ -3,7 +3,7 @@ const gridCategoryRouter = {
   name: null,
   title: '宫格管理',
   type: 'folder', // 类型: folder, tab, view
-  icon: 'el-icon-s-data',
+  icon: 'el-icon-menu',
   filePath: 'views/grid_category/', // 文件路径
   order: null,
   inNav: true,
@@ -15,7 +15,7 @@ const gridCategoryRouter = {
       route: '/grid_category/list',
       filePath: 'views/grid_category/GridCategoryList.vue',
       inNav: true,
-      icon: '',
+      icon: 'el-icon-menu',
     },
   ],
 }

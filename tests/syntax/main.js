@@ -1,3 +1,3 @@
-var arr = ['123', '2323', 'dafasd']
-arr.push('bbbb')
-console.log(arr)
+
+let arr = [1,2,3];
+console.log(arr.includes(1))

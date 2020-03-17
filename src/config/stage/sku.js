@@ -15,7 +15,7 @@ const skuRouter = {
       route: '/sku/list',
       filePath: 'views/sku/SKUList.vue',
       inNav: true,
-      icon: '',
+      icon: 'el-icon-truck',
     },
   ],
 }

@@ -3,7 +3,7 @@ const categoryRouter = {
   name: null,
   title: '分类管理',
   type: 'folder', // 类型: folder, tab, view
-  icon: 'el-icon-set-up',
+  icon: 'el-icon-s-grid',
   filePath: 'views/category/', // 文件路径
   order: null,
   inNav: true,
@@ -15,7 +15,7 @@ const categoryRouter = {
       route: '/category/list',
       filePath: 'views/category/CategoryList.vue',
       inNav: true,
-      icon: '',
+      icon: 'el-icon-s-grid',
     },
     {
       title: '子分类列表',
@@ -24,7 +24,7 @@ const categoryRouter = {
       route: '/sub_category/:id/list',
       filePath: 'views/category/SubCategoryList.vue',
       inNav: false,
-      icon: '',
+      icon: 'el-icon-s-grid',
     },
   ],
 }

@@ -15,7 +15,7 @@ const specRouter = {
       route: '/spec/add',
       filePath: 'views/spec/SpecAdd.vue',
       inNav: true,
-      icon: '',
+      icon: 'el-icon-c-scale-to-original',
     },
     {
       title: '规格值详情',
@@ -24,7 +24,7 @@ const specRouter = {
       route: '/spec/edit/:id',
       filePath: 'views/spec/SpecEdit.vue',
       inNav: false,
-      icon: '',
+      icon: 'el-icon-c-scale-to-original',
     },
     {
       title: '规格名列表',
@@ -33,7 +33,7 @@ const specRouter = {
       route: '/spec/list',
       filePath: 'views/spec/SpecList.vue',
       inNav: true,
-      icon: '',
+      icon: 'el-icon-c-scale-to-original',
     },
   ],
 }

@@ -58,17 +58,7 @@ const adminRouter = {
           title: '分组列表',
           icon: 'iconfont icon-huiyuanguanli',
           permission: ['超级管理员独有权限'],
-        },
-        {
-          route: '/admin/group/add',
-          type: 'view',
-          name: 'groupAdd',
-          filePath: 'views/admin/group/GroupAdd.vue',
-          inNav: true,
-          title: '添加分组',
-          icon: 'iconfont icon-add',
-          permission: ['超级管理员独有权限'],
-        },
+        }
       ],
     },
   ],

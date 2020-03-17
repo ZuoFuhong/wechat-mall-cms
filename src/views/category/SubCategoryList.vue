@@ -114,8 +114,8 @@ export default {
       this.showEdit = false
       await this.getCategorys()
     },
-    currentChange(page) {
-      console.log(page)
+    currentChange(pageNum) {
+      this.getCategoryList(this.pid, pageNum, this.pagination.pageSize)
     },
   },
 }

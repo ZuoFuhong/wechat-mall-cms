@@ -1,11 +1,11 @@
 import adminConfig from './admin'
 import bannerConfig from './banner'
+import couponConfig from './coupon'
 import categoryConfig from './category'
 import gridCategoryConfig from './grid_category'
 import specConfig from './spec'
 import goodsConfig from './goods'
 import skuConfig from './sku'
-import couponConfig from './coupon'
 import pluginsConfig from './plugins'
 import Utils from '@/lin/utils/util'
 
@@ -18,7 +18,7 @@ let homeRouter = [
     route: '/dashboard',
     filePath: 'views/dashboard/dashboard.vue',
     inNav: true,
-    icon: 'iconfont icon-iconset0103',
+    icon: 'el-icon-s-home',
     order: 0,
   },
   {
@@ -31,12 +31,12 @@ let homeRouter = [
     icon: 'iconfont icon-rizhiguanli',
   },
   bannerConfig,
-  categoryConfig,
   gridCategoryConfig,
+  couponConfig,
+  categoryConfig,
   specConfig,
   goodsConfig,
   skuConfig,
-  couponConfig,
   adminConfig,
 ]
 
