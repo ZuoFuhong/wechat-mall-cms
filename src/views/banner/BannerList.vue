@@ -58,7 +58,7 @@ export default {
       loading: true,
       pagination: {
         pageSize: 10,
-        pageTotal: 50,
+        pageTotal: 0,
       },
     }
   },

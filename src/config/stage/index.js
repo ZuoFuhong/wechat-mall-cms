@@ -5,6 +5,7 @@ import gridCategoryConfig from './grid_category'
 import specConfig from './spec'
 import goodsConfig from './goods'
 import skuConfig from './sku'
+import couponConfig from './coupon'
 import pluginsConfig from './plugins'
 import Utils from '@/lin/utils/util'
 
@@ -35,6 +36,7 @@ let homeRouter = [
   specConfig,
   goodsConfig,
   skuConfig,
+  couponConfig,
   adminConfig,
 ]
 

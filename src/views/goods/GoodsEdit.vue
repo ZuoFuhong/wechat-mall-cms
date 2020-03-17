@@ -379,7 +379,6 @@ export default {
       this.$emit('editClose')
     },
     doSwitchOnlineEvent(val) {
-      console.log(val)
       this.form.online = val ? 1 : 0
     }
   },
