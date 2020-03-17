@@ -26,18 +26,8 @@ const adminRouter = {
           filePath: 'views/admin/user/UserList.vue',
           inNav: true,
           icon: 'iconfont icon-huiyuanguanli',
-          permission: ['超级管理员独有权限'],
-        },
-        {
-          title: '添加用户',
-          type: 'view',
-          inNav: true,
-          route: '/admin/user/add',
-          icon: 'iconfont icon-add',
-          name: 'userAdd',
-          filePath: 'views/admin/user/UserAdd.vue',
-          permission: ['超级管理员独有权限'],
-        },
+          permission: [],
+        }
       ],
     },
     {

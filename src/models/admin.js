@@ -31,14 +31,20 @@ class Admin {
     return get(`cms/admin/user?id=${id}`)
   }
 
-  async editUser({ id, username, email, password, mobile, groupId }) {
+  async editUser({ id, username, email, mobile, avatar, groupId }) {
     return post('cms/admin/user', {
-      id, username, email, password, mobile, groupId
+      id, username, email, mobile, avatar, groupId
     })
   }
 
   async deleteUser(id) {
     return _delete(`cms/admin/user?id=${id}`)
+  }
+
+  async resetPassword(userId, password) {
+    return post('cms/admin/reset_password', {
+      userId, password
+    })
   }
 }
 

@@ -95,7 +95,7 @@ export default {
       }).then(async () => {
         const res = await admin.deleteGroup(val.id)
         if (res.error_code === undefined) {
-          this.getGroupList()
+          this.getGroupList(1, this.pagination.pageSize)
           this.$message({
             type: 'success',
             message: '删除成功！',
@@ -159,5 +159,4 @@ export default {
     }
   }
 }
-
 </style>

@@ -1,263 +1,206 @@
 <template>
-  <div class="container">
-    <div class="header">
-      <div class="title">用户列表</div>
-      <!-- 分组选择下拉框 -->
-      <el-select size="medium" filterable v-model="group_id" placeholder="请选择分组" @change="handleChange" clearable>
-        <el-option v-for="(group, index) in groups" :key="index" :label="group.name" :value="group.id"> </el-option>
-      </el-select>
-    </div>
-    <!-- 表格 -->
-    <lin-table
-      :tableColumn="tableColumn"
-      :tableData="tableData"
-      :operate="operate"
-      @handleEdit="handleEdit"
-      @handleDelete="handleDelete"
-      @row-click="rowClick"
-      v-loading="loading"
-    ></lin-table>
-    <!-- 分页 -->
-    <div class="pagination">
-      <el-pagination
-        @current-change="handleCurrentChange"
-        :background="true"
-        :page-size="pageCount"
-        :current-page="currentPage"
-        v-if="refreshPagination"
-        layout="prev, pager, next, jumper"
-        :total="total_nums"
-      >
-      </el-pagination>
-    </div>
-    <!-- 弹窗 -->
-    <el-dialog :append-to-body="true" :before-close="handleClose" :visible.sync="dialogFormVisible">
-      <div style="margin-top:-25px;">
-        <el-tabs v-model="activeTab" @tab-click="handleClick">
-          <el-tab-pane label="修改信息" name="修改信息">
-            <user-info
-              ref="userInfo"
-              v-if="dialogFormVisible"
-              @handleInfoResult="handleInfoResult"
-              labelPosition="right"
-              pageType="edit"
-              :id="id"
-              :groups="groups"
-              :info="form"
-              :submit="false"
-              class="info"
-            />
-          </el-tab-pane>
-          <el-tab-pane label="修改密码" name="修改密码">
-            <user-password @handlePasswordResult="handlePasswordResult" ref="password" :id="id" class="password" />
-          </el-tab-pane>
-        </el-tabs>
+  <div>
+    <div class="container" v-if="!showEdit">
+      <div class="header">
+        <div class="title plus">
+          <span>用户列表</span>
+          <el-button type="primary" plain style="margin-left: 30px;" @click="addUser">添加用户</el-button>
+        </div>
       </div>
-      <!-- 按键操作 -->
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="confirmEdit">确 定</el-button>
-        <el-button @click="resetForm">重 置</el-button>
+      <div class="banner-table">
+        <el-table
+          v-loading="loading"
+          stripe
+          row-key="id"
+          :data="tableData"
+          :highlight-current-row="true"
+          style="width: 100%"
+        >
+          <el-table-column prop="id" label="id" width="80"> </el-table-column>
+          <el-table-column prop="avatar" label="头像" width="180">
+            <template slot-scope="scope">
+              <img class="bannerPicture" :src="scope.row.avatar" alt="" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="username" label="用户名" width="150"> </el-table-column>
+          <el-table-column prop="mobile" label="手机号" width="150"> </el-table-column>
+          <el-table-column prop="email" label="邮箱" width="150"> </el-table-column>
+          <el-table-column prop="groupName" label="所属分组" width="150"> </el-table-column>
+          <el-table-column label="操作" fixed="right" width="240">
+            <template slot-scope="scope">
+              <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">查看</el-button>
+              <el-button plain size="mini" @click="handleDelete(scope.row)" type="danger">删除</el-button>
+              <el-button plain size="mini" @click="handleChangePassword(scope.row)" type="info">重置密码</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-pagination
+          class="pagination"
+          background
+          layout="prev, pager, next"
+          :page-size="pagination.pageSize ? pagination.pageSize : 10"
+          :total="pagination.pageTotal ? pagination.pageTotal : null"
+          @current-change="currentChange"
+        >
+        </el-pagination>
+      </div>
+    </div>
+    <user-edit v-else @editClose="editClose" :userId="userId"></user-edit>
+    <el-dialog title="重置密码" :visible.sync="dialogTableVisible" width="40%">
+      <div class="container">
+        <div class="wrap">
+          <el-row>
+            <el-col :lg="16" :md="20" :sm="24" :xs="24">
+              <el-form :rules="dialogFormRules" :model="dialogForm" status-icon ref="dialogForm" label-width="100px" @submit.native.prevent>
+                <el-form-item label="密码" prop="password">
+                  <el-input size="medium" v-model="dialogForm.password" show-password maxlength="16" autocomplete="off" placeholder="请输入密码"></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" prop="confirmPassword">
+                  <el-input size="medium" v-model="dialogForm.confirmPassword" show-password maxlength="16" autocomplete="off" placeholder="请再次输入密码"></el-input>
+                </el-form-item>
+                <el-form-item class="submit">
+                  <el-button type="primary" @click="submitForm('dialogForm')">保 存</el-button>
+                  <el-button @click="resetForm('dialogForm')">重 置</el-button>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </div>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import Admin from '@/lin/models/admin'
-import LinTable from '@/components/base/table/lin-table'
-import UserInfo from './UserInfo'
-import UserPassword from './UserPassword'
+import admin from '@/models/admin'
+import UserEdit from './UserEdit'
 
 export default {
-  components: { LinTable, UserInfo, UserPassword },
-  inject: ['eventBus'],
+  components: {
+    UserEdit
+  },
   data() {
+    const passwordFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('密码不能为空'))
+      }
+      const reg = new RegExp(/^[a-zA-Z0-9]{6,16}$/)
+      if (!reg.test(value)) {
+        return callback(new Error('密码必须由字母或数字组成的6~16字符，区分大小写'))
+      }
+      callback()
+    }
+    const confirmPasswordFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('确认密码不能为空'))
+      }
+      if (this.dialogForm.password !== this.dialogForm.confirmPassword) {
+        return callback(new Error('两次输入密码不一致'))
+      }
+      callback()
+    }
     return {
-      id: 0, // 用户id
-      refreshPagination: true, // 页数增加的时候，因为缓存的缘故，需要刷新Pagination组件
-      editIndex: null, // 编辑的行
-      total_nums: 0, // 分组内的用户总数
-      currentPage: 1, // 默认获取第一页的数据
-      pageCount: 10, // 每页10条数据
-      tableData: [], // 表格数据
-      tableColumn: [], // 表头数据
-      operate: [], // 表格按键操作区
-      dialogFormVisible: false, // 控制弹窗显示
-      selectGroup: '', // 选中的分组Id
-      groups: [], // 所有分组
-      group_id: undefined,
-      activeTab: '修改信息',
-      form: {
-        // 表单信息
-        username: '',
-        password: '',
-        confirm_password: '',
-        email: '',
-        group_id: '',
+      loading: true,
+      tableColumn: [
+        { prop: 'id', label: 'id' },
+        { prop: 'avatar', label: '头像' },
+        { prop: 'username', label: '用户名' },
+        { prop: 'mobile', label: '手机号' },
+        { prop: 'email', label: '邮箱' },
+        { prop: 'groupName', label: '所属分组' },
+      ],
+      tableData: [],
+      pagination: {
+        pageSize: 10,
+        pageTotal: 0,
       },
-      loading: false,
+      dialogTableVisible: false,
+      dialogForm: {
+        password: '',
+        confirmPassword: ''
+      },
+      dialogFormRules: {
+        password: [{ validator: passwordFunc, trigger: 'blur', required: true }],
+        confirmPassword: [{ validator: confirmPasswordFunc, trigger: 'blur', required: true }],
+      },
+      showEdit: false,
+      userId: 0
     }
   },
+  async created() {
+    await this.getUserList(1, this.pagination.pageSize)
+    this.loading = false
+  },
   methods: {
-    // 根据分组 刷新/获取分组内的用户
-    async getAdminUsers() {
-      let res
-      const currentPage = this.currentPage - 1
-      try {
-        this.loading = true
-        res = await Admin.getAdminUsers({ group_id: this.group_id, count: this.pageCount, page: currentPage }) // eslint-disable-line
-        this.loading = false
-        this.tableData = [...res.items]
-        this.total_nums = res.total
-      } catch (e) {
-        this.loading = false
-        console.log(e)
-      }
-    },
-    // 获取所有分组
-    async getAllGroups() {
-      try {
-        this.loading = true
-        this.groups = await Admin.getAllGroups()
-        this.loading = false
-      } catch (e) {
-        this.loading = false
-        console.log(e)
-      }
-    },
-    // 获取所拥有的权限并渲染  由子组件提供
-    async handleEdit(val) {
-      this.editIndex = val.index
-      let selectedData
-      // 单击 编辑按键
-      if (val.index >= 0) {
-        selectedData = val.row
+    async getUserList(page, size) {
+      const res = await admin.getUserList(page, size)
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
       } else {
-        // 单击 table row
-        selectedData = val
+        this.tableData = res.list
+        this.pagination.pageTotal = res.total
       }
-      this.id = selectedData.id
-      this.form.username = selectedData.username
-      this.form.email = selectedData.email
-      this.form.group_id = selectedData.group_id
-      this.dialogFormVisible = true
     },
-    // 下拉框选择分组
-    async handleChange() {
-      this.currentPage = 1
-      this.loading = true
-      await this.getAdminUsers()
-      this.loading = false
-    },
-    // 切换table页
-    async handleCurrentChange(val) {
-      this.currentPage = val
-      this.loading = true
-      await this.getAdminUsers('changePage')
-      this.loading = false
+    handleEdit(val) {
+      this.userId = val.id
+      this.showEdit = true
     },
     handleDelete(val) {
-      let res
       this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       }).then(async () => {
-        try {
-          this.loading = true
-          res = await Admin.deleteOneUser(val.row.id)
-        } catch (e) {
-          this.loading = false
-          console.log(e)
-        }
-        if (res.error_code === 0) {
-          this.loading = false
-          if (this.total_nums % this.pageCount === 1 && this.currentPage !== 1) {
-            // 判断删除的是不是每一页的最后一条数据
-            this.currentPage--
-          }
-          await this.getAdminUsers()
+        const res = await admin.deleteUser(val.id)
+        if (res.error_code === undefined) {
+          this.getUserList(1, this.pagination.pageTotal)
           this.$message({
             type: 'success',
-            message: `${res.msg}`,
+            message: '删除成功！',
           })
         } else {
-          this.loading = false
           this.$message.error(`${res.msg}`)
         }
       })
     },
-    // 提交表单信息
-    async confirmEdit() {
-      if (this.activeTab === '修改信息') {
-        await this.$refs.userInfo.submitForm('form')
-      } else {
-        await this.$refs.password.submitForm('form')
-      }
+    editClose() {
+      this.showEdit = false
+      this.getUserList(1, this.pagination.pageSize)
     },
-    // 重置
-    resetForm() {
-      if (this.activeTab === '修改信息') {
-        this.$refs.userInfo.resetForm('form')
-      } else {
-        this.$refs.password.resetForm('form')
-      }
+    currentChange(pageNum) {
+      this.getUserList(pageNum, this.pagination.pageSize)
     },
-    // 双击 table ro
-    rowClick(row) {
-      this.handleEdit(row)
+    addUser() {
+      this.userId = 0
+      this.showEdit = true
     },
-    // 弹框 右上角 X
-    handleClose(done) {
-      this.dialogFormVisible = false
-      done()
+    handleChangePassword(val) {
+      this.userId = val.id
+      this.dialogTableVisible = true
+      this.resetForm('dialogForm')
     },
-    // 切换tab栏
-    handleClick(tab) {
-      console.log(tab)
-      this.activeTab = tab.name
-    },
-    // 监听子组件更新用户信息是否成功
-    async handleInfoResult(flag) {
-      this.dialogFormVisible = false
-      if (flag === true) {
-        this.getAdminUsers()
-      }
-    },
-    // 监听子组件更新密码是否成功
-    handlePasswordResult(result) {
-      if (result === true) {
-        this.dialogFormVisible = false
-      }
-    },
-    // 监听添加用户是否成功
-    async addUser(flag) {
-      if (flag === true) {
-        if (this.total_nums % this.pageCount === 0) {
-          // 判断当前页的数据是不是满了，需要增加新的页码
-          this.currentPage++
+    async submitForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          const res = await admin.resetPassword(this.userId, this.dialogForm.password)
+          if (res.error_code !== undefined) {
+            this.$message.error(`${res.msg}`)
+          } else {
+            this.$message.success('操作成功！')
+            this.dialogTableVisible = false
+          }
+        } else {
+          return false
         }
-        await this.getAdminUsers()
-        this.refreshPagination = false // 刷新pagination组件
-        this.$nextTick(() => {
-          this.refreshPagination = true
-        })
-      }
+      })
     },
-  },
-  async created() {
-    await this.getAdminUsers()
-    this.getAllGroups()
-    this.tableColumn = [{ prop: 'username', label: '名称' }, { prop: 'group_name', label: '所属分组' }] // 设置表头信息
-    this.operate = [
-      { name: '编辑', func: 'handleEdit', type: 'primary' },
-      { name: '删除', func: 'handleDelete', type: 'danger' },
-    ]
-    this.eventBus.$on('addUser', this.addUser)
-  },
-  beforeDestroy() {
-    this.eventBus.$off('addUser', this.addUser)
-  },
+    // 重置表单
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
+    },
+  }
 }
 </script>
 
@@ -273,27 +216,31 @@ export default {
     .title {
       height: 59px;
       line-height: 59px;
-      color: $parent-title-color;
       font-size: 16px;
       font-weight: 500;
+      color: $parent-title-color;
+    }
+    .plus {
+      -webkit-box-align: center;
+      align-items: center;
     }
   }
+  .banner-table {
+    position: relative;
 
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin: 20px;
+    .bannerPicture {
+      max-width: 80px;
+      max-height: 40px;
+      width: auto;
+      height: auto;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-right: -10px;
+      margin-top: 15px;
+    }
   }
-}
-
-.info {
-  margin-left: -55px;
-  margin-bottom: -30px;
-}
-
-.password {
-  margin-top: 20px;
-  margin-left: -55px;
-  margin-bottom: -20px;
 }
 </style>

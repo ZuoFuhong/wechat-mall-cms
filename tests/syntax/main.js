@@ -1,3 +1,2 @@
-
-let arr = [1,2,3];
-console.log(arr.includes(1))
+const reg = new RegExp(/^[azAZ09]+$/)
+console.log(reg.test("ca3"))
