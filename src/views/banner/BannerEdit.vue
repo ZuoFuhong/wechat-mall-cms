@@ -8,9 +8,6 @@
       <el-row>
         <el-col :lg="10" :md="20" :sm="24" :xs="24">
           <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" @submit.native.prevent>
-            <el-form-item label="名称" prop="name">
-              <el-input size="medium" v-model="form.name" maxlength="10" show-word-limit placeholder="请填写名称"></el-input>
-            </el-form-item>
             <el-form-item label="标题" prop="title">
               <el-input size="medium" v-model="form.title" maxlength="10" show-word-limit placeholder="请填写标题"></el-input>
             </el-form-item>
@@ -61,13 +58,6 @@ export default {
     }
   },
   data() {
-    const nameFunc = (rule, value, callback) => {
-      // eslint-disable-line
-      if (!value) {
-        return callback(new Error('名称不能为空'))
-      }
-      callback()
-    }
     const titleFunc = (rule, value, callback) => {
       // eslint-disable-line
       if (!value) {
@@ -84,13 +74,11 @@ export default {
     }
     return {
       form: {
-        name: '',
         title: '',
         picture: '',
         description: '',
       },
       rules: {
-        name: [{ validator: nameFunc, trigger: 'blur', required: true }],
         title: [{ validator: titleFunc, trigger: 'blur', required: true }],
         picture: [{ validator: pictureFunc, trigger: 'blur', required: true }],
       },
@@ -122,7 +110,6 @@ export default {
             const res = await banner.updateBanner({
               id: this.bannerId,
               picture: this.form.picture,
-              name: this.form.name,
               title: this.form.title,
               description: this.form.description,
             })

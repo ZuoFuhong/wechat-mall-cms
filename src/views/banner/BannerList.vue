@@ -22,7 +22,6 @@
               <img class="bannerPicture" :src="scope.row.picture" alt="" />
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="名称" width="180"> </el-table-column>
           <el-table-column prop="title" label="标题" width="180"> </el-table-column>
           <el-table-column prop="description" label="描述"> </el-table-column>
           <el-table-column label="操作" fixed="right" width="175">
@@ -60,7 +59,6 @@ export default {
       tableColumn: [
         { prop: 'id', label: 'id' },
         { prop: 'picture', label: '图片' },
-        { prop: 'name', label: '名称' },
         { prop: 'title', label: '标题' },
         { prop: 'description', label: '描述' },
       ],
