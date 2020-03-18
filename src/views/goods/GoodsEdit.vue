@@ -3,7 +3,7 @@
     <div class="container">
       <div class="title">
         <span>{{ title }}</span>
-        <span class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
+        <span v-if="goodsId !== 0" class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
       </div>
       <div class="wrap">
         <el-row>
@@ -154,6 +154,7 @@ export default {
   props: {
     goodsId: {
       type: Number,
+      default: 0
     },
   },
   async created() {
@@ -175,7 +176,7 @@ export default {
     },
   },
   methods: {
-    async submitForm(formName) {
+    async submitForm() {
       try {
         const pictureFiles = await this.getUploadFile('pictureEle')
         const bannerPictureFiles = await this.getUploadFile('bannerPictureEle')
@@ -241,8 +242,11 @@ export default {
           this.$message.error(`${res.msg}`)
         } else {
           this.$message.success('操作成功！')
-          this.resetForm(formName)
-          this.back()
+          if (this.goodsId === 0) {
+            this.$router.push('/goods/list')
+          } else {
+            this.back()
+          }
         }
       } catch (error) {
         console.log(error)

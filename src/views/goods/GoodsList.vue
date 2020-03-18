@@ -1,9 +1,38 @@
 <template>
   <div>
     <div class="container" v-if="!showEdit">
-      <div class="title plus">
-        <span>商品列表</span>
-        <el-button type="primary" plain style="margin-left: 30px;" @click="addGoods">添加商品</el-button>
+      <div class="search">
+        <el-row>
+          <el-form :model="searchForm" status-icon ref="searchForm" label-width="100px" @submit.native.prevent>
+            <el-col :lg="5">
+              <el-form-item label="商品标题" prop="title">
+                <el-input size="medium" v-model="searchForm.goodsName" maxlength="15" placeholder="搜索商品名"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :lg="5">
+              <el-form-item label="商品分类" prop="categoryId">
+                  <el-cascader v-model="optionCategory" :props="categoryProps" clearable @change="handleOptionCategory"></el-cascader>
+              </el-form-item>
+            </el-col>
+            <el-col :lg="5">
+              <el-form-item label="上下架" prop="categoryId">
+                  <el-select clearable v-model="searchForm.online" placeholder="请选择">
+                    <el-option
+                      v-for="item in onlineStatus"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :lg="5">
+              <div class="searchButton">
+                <el-button plain type="info" @click="handleSearchGoods('searchForm')">搜索</el-button>
+              </div>
+            </el-col>
+          </el-form>
+        </el-row>
       </div>
       <div class="wrap">
         <div class="category-table">
@@ -51,12 +80,14 @@
 <script>
 import GoodsEdit from './GoodsEdit'
 import goods from '@/models/goods'
+import category from '@/models/category'
 
 export default {
   components: {
     GoodsEdit,
   },
   data() {
+    const that = this
     return {
       loading: true,
       tableData: [],
@@ -66,6 +97,36 @@ export default {
       },
       showEdit: false,
       goodsId: 0,
+      searchForm: {
+        goodsName: '',
+        categoryId: null,
+        online: null
+      },
+      optionCategory: [],
+      categoryProps: {
+        lazy: true,
+        async lazyLoad(node, resolve) {
+          const { level, value } = node
+          if (level === 0) {
+            const arr = await that.getCategory(0)
+            resolve(arr)
+          }
+          if (level === 1) {
+            const arr = await that.getCategory(value)
+            resolve(arr)
+          }
+        }
+      },
+      onlineStatus: [
+        {
+          value: 0,
+          label: '下架'
+        },
+        {
+          value: 1,
+          label: '上架'
+        }
+      ]
     }
   },
   async created() {
@@ -73,13 +134,49 @@ export default {
     this.loading = false
   },
   methods: {
+    // 搜索商品
     async getGoodsList(page, size) {
-      const res = await goods.getGoodsList(0, page, size)
+      const { goodsName } = this.searchForm
+      let { categoryId, online } = this.searchForm
+      if (!categoryId) {
+        categoryId = 0
+      }
+      if (!online && online !== 0) {
+        online = -1
+      }
+      const res = await goods.getGoodsList(categoryId, goodsName, online, page, size)
       if (res.error_code !== undefined) {
         this.$message.error(`${res.msg}`)
       } else {
         this.tableData = res.list
         this.pagination.pageTotal = res.total
+      }
+    },
+    // 选择的分类
+    handleOptionCategory() {
+      if (this.optionCategory.length === 2) {
+        const [, b] = this.optionCategory
+        this.searchForm.categoryId = b
+      } else {
+        this.searchForm.categoryId = 0
+      }
+    },
+    // 查询分类
+    async getCategory(pid) {
+      const res = await category.getCategoryList(pid, 1, 100)
+      if (res.error_code !== undefined) {
+        console.log(res.msg)
+      } else {
+        const tmpArr = []
+        for (let i = 0; i < res.list.length; i++) {
+          const item = res.list[i]
+          tmpArr.push({
+            value: item.id,
+            label: item.name,
+            leaf: item.parentId !== 0
+          })
+        }
+        return tmpArr
       }
     },
     formatOnline(row) {
@@ -118,6 +215,9 @@ export default {
     currentChange(pageNum) {
       this.getGoodsList(pageNum, this.pagination.pageSize)
     },
+    handleSearchGoods() {
+      this.getGoodsList(1, this.pagination.pageSize)
+    }
   },
 }
 </script>
@@ -135,9 +235,16 @@ export default {
     border-bottom: 1px solid #dae1ec;
   }
   .wrap {
-    padding: 20px;
+    padding: 0 20px;
   }
-
+  .search {
+    padding: 20px 0px 0px;
+    .searchButton {
+      display: flex;
+      height: 40px;
+      margin-left: 30px;
+    }
+  }
   .submit {
     float: left;
   }

@@ -16,6 +16,15 @@ const spuRouter = {
       filePath: 'views/goods/GoodsList.vue',
       inNav: true,
       icon: 'el-icon-s-shop',
+    },
+    {
+      title: '新增商品',
+      type: 'view',
+      name: 'addGoods',
+      route: '/goods/add',
+      filePath: 'views/goods/GoodsEdit.vue',
+      inNav: true,
+      icon: 'el-icon-s-shop',
     }
   ],
 }

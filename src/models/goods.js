@@ -1,8 +1,8 @@
 import { get, post, _delete } from '@/lin/plugins/axios'
 
 class Goods {
-  async getGoodsList(categoryId, page, size) {
-    return get(`cms/goods/list?categoryId=${categoryId}&page=${page}&size=${size}`)
+  async getGoodsList(categoryId, goodsName, online, page, size) {
+    return get(`cms/goods/list?c=${categoryId}&k=${goodsName}&o=${online}&page=${page}&size=${size}`)
   }
 
   async getGoods(id) {
