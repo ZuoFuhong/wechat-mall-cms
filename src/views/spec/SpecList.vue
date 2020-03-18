@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="container">
-      <div class="title">规格名列表</div>
+      <div class="title">
+        <span>规格名列表</span>
+        <el-button type="primary" plain style="margin-left: 30px;" @click="addSpec">添加规格</el-button>
+      </div>
       <div class="category-table">
         <el-table
           v-loading="loading"
@@ -34,6 +37,39 @@
         </el-pagination>
       </div>
     </div>
+    <el-dialog title="新增规格名" :visible.sync="dialogTableVisible" width="50%">
+      <div class="container" style="padding-bottom: 0px;">
+        <div class="wrap">
+          <el-row>
+            <el-col :lg="20">
+              <el-form :rules="dialogFormRules" :model="dialogForm" status-icon ref="dialogForm" label-width="100px" @submit.native.prevent>
+                <el-form-item label="规格名名称" prop="name">
+                  <el-input size="medium" v-model="dialogForm.name" maxlength="8" show-word-limit autocomplete="off" placeholder="请输入规格名名称"></el-input>
+                </el-form-item>
+                <el-form-item label="单位" prop="unit">
+                  <el-input size="medium" v-model="dialogForm.unit" maxlength="5" show-word-limit autocomplete="off" placeholder="请输入单位，如：英寸"></el-input>
+                </el-form-item>
+                <el-form-item label="规格名描述" prop="description">
+                  <el-input size="medium" v-model="dialogForm.description" maxlength="30" show-word-limit autocomplete="off" placeholder="请输入规格名描述"></el-input>
+                </el-form-item>
+                <el-form-item label="是否标准" prop="standard">
+                  <el-switch
+                    v-model="standardStatus"
+                    @change="handleStandardStatus"
+                    active-text="标准"
+                    inactive-text="非标准">
+                  </el-switch>
+                </el-form-item>
+                <el-form-item class="submit">
+                  <el-button type="primary" @click="submitForm('dialogForm')">保 存</el-button>
+                  <el-button @click="resetForm('dialogForm')">重 置</el-button>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -43,6 +79,20 @@ import Spec from '@/models/spec'
 export default {
   components: {},
   data() {
+    const nameFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('规格名名称不能为空'))
+      }
+      callback()
+    }
+    const unitFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('单位不能为空'))
+      }
+      callback()
+    }
     return {
       loading: true,
       tableData: [],
@@ -51,6 +101,18 @@ export default {
         pageTotal: 0,
       },
       specId: 0,
+      dialogTableVisible: false,
+      dialogFormRules: {
+        name: [{ validator: nameFunc, trigger: 'blur', required: true }],
+        unit: [{ validator: unitFunc, trigger: 'blur', required: true }],
+      },
+      dialogForm: {
+        name: '',
+        unit: '',
+        description: '',
+        standard: 0
+      },
+      standardStatus: false
     }
   },
   async created() {
@@ -58,6 +120,41 @@ export default {
     this.loading = false
   },
   methods: {
+    // 新增规格
+    async addSpec() {
+      this.dialogTableVisible = true
+    },
+    handleStandardStatus(val) {
+      this.dialogForm.standard = val ? 1 : 0
+    },
+    async submitForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          console.log(this.dialogForm)
+          const postData = {
+            id: 0,
+            name: this.dialogForm.name,
+            unit: this.dialogForm.unit,
+            description: this.dialogForm.description,
+            standard: this.dialogForm.standard
+          }
+          const res = await Spec.editSpec(postData)
+          if (res.error_code !== undefined) {
+            this.$message.error(`${res.msg}`)
+          } else {
+            this.$message.success('新增成功！')
+            this.getSpecList(1, this.pagination.pageSize)
+            this.dialogTableVisible = false
+          }
+        } else {
+          return false
+        }
+      })
+    },
+    // 重置表单
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
+    },
     async getSpecList(pageNum, pageSize) {
       const res = await Spec.getSpecList(pageNum, pageSize)
       if (res.error_code !== undefined) {

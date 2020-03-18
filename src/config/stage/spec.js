@@ -9,15 +9,6 @@ const specRouter = {
   inNav: true,
   children: [
     {
-      title: '添加规格名',
-      type: 'view',
-      name: 'specAdd',
-      route: '/spec/add',
-      filePath: 'views/spec/SpecAdd.vue',
-      inNav: true,
-      icon: 'el-icon-c-scale-to-original',
-    },
-    {
       title: '规格值详情',
       type: 'view',
       name: 'specEdit',
