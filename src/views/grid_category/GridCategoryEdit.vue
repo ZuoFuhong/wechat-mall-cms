@@ -8,17 +8,11 @@
       <el-row>
         <el-col :lg="10" :md="20" :sm="24" :xs="24">
           <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" v-loading="loading" @submit.native.prevent>
-            <el-form-item label="宫格标题" prop="title">
-              <el-input size="medium" v-model="form.title" maxlength="5" show-word-limit placeholder="请填写宫格标题"></el-input>
-            </el-form-item>
             <el-form-item label="宫格名" prop="name">
-              <el-input size="medium" v-model="form.name" maxlength="10" show-word-limit placeholder="请填写宫格名"></el-input>
+              <el-input size="medium" v-model="form.name" maxlength="6" show-word-limit placeholder="请填写宫格名"></el-input>
             </el-form-item>
-            <el-form-item label="分类" prop="categoryId">
-              <el-select v-model="form.categoryId" placeholder="请选择">
-                <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-              </el-select>
+            <el-form-item label="商品分类" prop="categoryId">
+              <el-cascader v-model="optionCategory" :options="categoryOptions" clearable @change="handleOptionCategory"></el-cascader>
             </el-form-item>
             <el-form-item label="图片" prop="picture">
               <upload-imgs
@@ -48,13 +42,6 @@ export default {
     UploadImgs,
   },
   data() {
-    const titleFunc = (rule, value, callback) => {
-      // eslint-disable-line
-      if (!value) {
-        return callback(new Error('宫格标题不能为空'))
-      }
-      callback()
-    }
     const nameFunc = (rule, value, callback) => {
       // eslint-disable-line
       if (!value) {
@@ -62,18 +49,32 @@ export default {
       }
       callback()
     }
+    const pictureFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('图片不能为空'))
+      }
+      callback()
+    }
+    const categoryFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('请选择商品分类'))
+      }
+      callback()
+    }
     return {
       loading: true,
       form: {
-        title: '',
         name: '',
         categoryId: null,
         picture: '',
       },
       initPictureData: [],
       rules: {
-        title: [{ validator: titleFunc, trigger: 'blur', required: true }],
         name: [{ validator: nameFunc, trigger: 'blur', required: true }],
+        picture: [{ validator: pictureFunc, trigger: 'blur', required: true }],
+        categoryId: [{ validator: categoryFunc, trigger: 'blur', required: true }],
       },
       fileRules: {
         // minWidth: 100,
@@ -81,8 +82,8 @@ export default {
         maxSize: 2,
         allowAnimated: 1,
       },
-      categoryList: [],
-      value: '',
+      optionCategory: [],
+      categoryOptions: []
     }
   },
   props: {
@@ -92,10 +93,10 @@ export default {
   },
   async created() {
     console.log(this.gridCategoryId)
+    await this.getAllCategory()
     if (this.gridCategoryId !== 0) {
       await this.getGridCategory(this.gridCategoryId)
     }
-    await this.getCategoryList()
     this.loading = false
   },
   computed: {
@@ -104,15 +105,50 @@ export default {
     },
   },
   methods: {
+    // 全部分类
+    async getAllCategory() {
+      const res = await category.getAllCategory()
+      if (res.error_code !== undefined) {
+        this.$message.error(`${res.msg}`)
+      } else {
+        this.categoryOptions = res
+      }
+    },
+    // 事件-选择的分类
+    handleOptionCategory() {
+      if (this.optionCategory.length === 2) {
+        const [, b] = this.optionCategory
+        this.form.categoryId = b
+      } else {
+        this.form.categoryId = 0
+      }
+    },
+    // 查询分类
+    async getCategory(pid) {
+      const res = await category.getCategoryList(pid, 1, 100)
+      if (res.error_code !== undefined) {
+        console.log(res.msg)
+      } else {
+        const tmpArr = []
+        for (let i = 0; i < res.list.length; i++) {
+          const item = res.list[i]
+          tmpArr.push({
+            value: item.id,
+            label: item.name,
+            leaf: item.parentId !== 0
+          })
+        }
+        return tmpArr
+      }
+    },
     async getGridCategory(id) {
       const res = await gridCategory.getGridCategory(id)
       if (res.error_code !== undefined) {
         this.$message.error(`${res.msg}`)
       } else {
         this.form = {
-          title: res.title,
           name: res.name,
-          categoryId: res.categoryId,
+          categoryId: res.subCategoryId,
           picture: res.picture
         }
         this.initPictureData = [
@@ -121,19 +157,9 @@ export default {
             display: res.picture
           }
         ]
-      }
-    },
-    async getCategoryList() {
-      const res = await category.getCategoryList(0, 1, 100)
-      if (res.error_code !== undefined) {
-        this.$message.error(`${res.msg}`)
-      } else {
-        for (let i = 0; i < res.list.length; i++) {
-          this.categoryList.push({
-            value: res.list[i].id,
-            label: res.list[i].name
-          })
-        }
+        this.optionCategory = [
+          res.categoryId, res.subCategoryId
+        ]
       }
     },
     back() {
@@ -146,50 +172,36 @@ export default {
     async uploadFile(file, call) {
       const data = await oss.uploadFileToOSS(file, 'assets/')
       call(data)
+      this.form.picture = data.url
     },
     // 清理上传的图片
     clearUploadFile() {
       this.$refs.uploadEle.clear()
     },
     async submitForm(formName) {
-      try {
-        const files = await this.getUploadFile('uploadEle')
-        if (this.form.title === '') {
-          this.$message.error('宫格标题为必填项！')
-          return
-        }
-        if (this.form.name === '') {
-          this.$message.error('宫格名为必填项！')
-          return
-        }
-        if (!this.form.categoryId) {
-          this.$message.error('请选择分类！')
-          return
-        }
-        if (files.length === 0) {
-          this.$message.error('请上传图片！')
-          return
-        }
-        console.log(files)
-        const postData = {
-          id: this.gridCategoryId,
-          title: this.form.title,
-          name: this.form.name,
-          categoryId: this.form.categoryId,
-          picture: files[0].display
-        }
-        const res = await gridCategory.editGridCategory(postData)
-        if (res.error_code !== undefined) {
-          this.$message.error(`${res.msg}`)
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            const postData = {
+              id: this.gridCategoryId,
+              name: this.form.name,
+              categoryId: this.form.categoryId,
+              picture: this.form.picture
+            }
+            const res = await gridCategory.editGridCategory(postData)
+            if (res.error_code !== undefined) {
+              this.$message.error(`${res.msg}`)
+            } else {
+              this.$message.success('操作成功！')
+              this.back()
+            }
+          } catch (error) {
+            console.log(error)
+          }
         } else {
-          this.$message.success('操作成功！')
-          this.resetForm(formName)
-          this.clearUploadFile()
-          this.back()
+          return false
         }
-      } catch (error) {
-        console.log(error)
-      }
+      })
     },
     // 重置表单
     resetForm(formName) {

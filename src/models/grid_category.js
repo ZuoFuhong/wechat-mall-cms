@@ -9,9 +9,9 @@ class GridCategory {
     return get(`cms/grid_category/${id}`)
   }
 
-  async editGridCategory({ id, title, name, categoryId, picture }) {
+  async editGridCategory({ id, name, categoryId, picture }) {
     const postData = {
-      id, title, name, categoryId, picture
+      id, name, categoryId, picture
     }
     return post('cms/grid_category/edit', postData)
   }

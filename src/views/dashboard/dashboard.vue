@@ -1,6 +1,15 @@
 <template>
   <div class="container">
-    <div>营业统计</div>
+    <el-row>
+      <el-col :span="24">
+      </el-col>
+      <el-col :span="24">
+      </el-col>
+      <el-col :span="24">
+      </el-col>
+      <el-col :span="24">
+      </el-col>
+    </el-row>
   </div>
 </template>
 

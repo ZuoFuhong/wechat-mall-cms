@@ -158,7 +158,9 @@ export default {
   },
   async created() {
     console.log(this.couponId)
-    await this.getCoupon(this.couponId)
+    if (this.couponId !== 0) {
+      await this.getCoupon(this.couponId)
+    }
   },
   methods: {
     back() {

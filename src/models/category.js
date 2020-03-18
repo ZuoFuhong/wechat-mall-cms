@@ -5,6 +5,10 @@ class Category {
     return get(`cms/category/list?pid=${pid}&page=${page}&size=${size}`)
   }
 
+  async getAllCategory() {
+    return get('cms/category/all')
+  }
+
   async getCategory(id) {
     return get(`cms/category/${id}`)
   }

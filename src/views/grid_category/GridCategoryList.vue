@@ -16,14 +16,13 @@
             style="width: 100%"
           >
             <el-table-column prop="id" label="id" width="80"></el-table-column>
-            <el-table-column prop="picture" label="图片" width="180">
+            <el-table-column prop="picture" label="图片" width="150">
               <template slot-scope="scope">
                 <img class="categoryPicture" :src="scope.row.picture" alt="" />
               </template>
             </el-table-column>
-            <el-table-column prop="title" label="标题" width="150"> </el-table-column>
             <el-table-column prop="name" label="名称" width="150"> </el-table-column>
-            <el-table-column prop="categoryName" label="分类" width="150"> </el-table-column>
+            <el-table-column prop="categoryName" label="商品分类"> </el-table-column>
             <el-table-column label="操作" fixed="right" width="230">
               <template slot-scope="scope">
                 <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>
