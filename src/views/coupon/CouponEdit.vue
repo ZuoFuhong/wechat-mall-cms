@@ -56,7 +56,8 @@
             </el-form-item>
             <el-form-item label="时间" prop="couponTime">
               <el-date-picker
-                v-model="couponTime"
+                @change="handleDatePicker"
+                v-model="form.couponTime"
                 :picker-options="pickerOptions0"
                 type="datetimerange"
                 range-separator="至"
@@ -114,6 +115,21 @@ export default {
       }
       callback()
     }
+    const typeFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('请选择券类型'))
+      }
+      callback()
+    }
+    const timeFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        console.log(value)
+        return callback(new Error('请选择时间'))
+      }
+      callback()
+    }
     return {
       form: {
         title: '',
@@ -122,9 +138,9 @@ export default {
         minus: 0,
         rate: 0,
         description: '',
-        online: 0
+        online: 0,
+        couponTime: []
       },
-      couponTime: null,
       couponTypeList: [
         {
           value: 1,
@@ -146,6 +162,8 @@ export default {
       couponType: 0,
       rules: {
         title: [{ validator: titleFunc, trigger: 'blur', required: true }],
+        type: [{ validator: typeFunc, trigger: 'blur', required: true }],
+        couponTime: [{ validator: timeFunc, trigger: 'blur', required: true }],
       },
       onlineStatus: false,
       // 日期选择范围：当前时间开始，一个月以内
@@ -163,6 +181,39 @@ export default {
     }
   },
   methods: {
+    async submitForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            const startTime = moment(this.form.couponTime[0]).format('YYYY-MM-DD HH:mm:ss')
+            const endTime = moment(this.form.couponTime[1]).format('YYYY-MM-DD HH:mm:ss')
+            const postData = {
+              id: this.couponId,
+              title: this.form.title,
+              fullMoney: (this.form.fullMoney).toString(),
+              minus: (this.form.minus).toString(),
+              rate: (this.form.rate).toString(),
+              type: this.form.type,
+              startTime,
+              endTime,
+              description: this.form.description,
+              online: this.form.online
+            }
+            const res = await coupon.editCoupon(postData)
+            if (res.error_code !== undefined) {
+              this.$message.error(`${res.msg}`)
+            } else {
+              this.$message.success('操作成功！')
+              this.back()
+            }
+          } catch (error) {
+            console.log(error)
+          }
+        } else {
+          return false
+        }
+      })
+    },
     back() {
       this.$emit('editClose')
     },
@@ -182,54 +233,14 @@ export default {
         }
         this.couponType = res.type
         this.onlineStatus = res.online === 1
-        const startDate = moment(res.startTime, 'YYYY-MM-DD HH:mm:ss', true)
-        const endDate = moment(res.endTime, 'YYYY-MM-DD HH:mm:ss', true)
-        this.couponTime = [
-          startDate, endDate
-        ]
+        const startDate = moment(res.startTime, 'YYYY-MM-DD HH:mm:ss', true).toDate()
+        const endDate = moment(res.endTime, 'YYYY-MM-DD HH:mm:ss', true).toDate()
+        // vue监听变化
+        this.$set(this.form, 'couponTime', [startDate, endDate])
       }
     },
     doSwitchCouponType(val) {
       this.couponType = val
-    },
-    async submitForm() {
-      try {
-        if (this.form.title === '') {
-          this.$message.error('标题为必填项！')
-          return
-        }
-        if (!this.form.type) {
-          this.$message.error('请选择券类型！')
-          return
-        }
-        if (!this.couponTime) {
-          this.$message.error('时间不能为空！')
-          return
-        }
-        const startTime = moment(this.couponTime[0]).format('YYYY-MM-DD HH:mm:ss')
-        const endTime = moment(this.couponTime[1]).format('YYYY-MM-DD HH:mm:ss')
-        const postData = {
-          id: this.couponId,
-          title: this.form.title,
-          fullMoney: (this.form.fullMoney).toString(),
-          minus: (this.form.minus).toString(),
-          rate: (this.form.rate).toString(),
-          type: this.form.type,
-          startTime,
-          endTime,
-          description: this.form.description,
-          online: this.form.online
-        }
-        const res = await coupon.editCoupon(postData)
-        if (res.error_code !== undefined) {
-          this.$message.error(`${res.msg}`)
-        } else {
-          this.$message.success('操作成功！')
-          this.back()
-        }
-      } catch (error) {
-        console.log(error)
-      }
     },
     // 重置表单
     resetForm(formName) {
@@ -237,6 +248,9 @@ export default {
     },
     doSwitchOnlineEvent(val) {
       this.form.online = val ? 1 : 0
+    },
+    handleDatePicker(val) {
+      console.log(val)
     }
   },
   computed: {
