@@ -22,16 +22,6 @@
                 :animated-check="true"
               />
             </el-form-item>
-            <el-form-item label="Banner描述" prop="description">
-              <el-input
-                size="medium"
-                type="textarea"
-                :autosize="{ minRows: 4, maxRows: 8 }"
-                placeholder="请输入描述"
-                v-model="form.description"
-              >
-              </el-input>
-            </el-form-item>
             <el-form-item class="submit">
               <el-button type="primary" @click="submitForm('form')">保 存</el-button>
               <el-button @click="resetForm('form')">重 置</el-button>
@@ -76,7 +66,6 @@ export default {
       form: {
         title: '',
         picture: '',
-        description: '',
       },
       rules: {
         title: [{ validator: titleFunc, trigger: 'blur', required: true }],
@@ -111,7 +100,6 @@ export default {
               id: this.bannerId,
               picture: this.form.picture,
               title: this.form.title,
-              description: this.form.description,
             })
             if (res.error_code === undefined) {
               this.$message.success('操作成功！')

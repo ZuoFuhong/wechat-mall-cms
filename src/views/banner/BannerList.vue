@@ -22,8 +22,7 @@
               <img class="bannerPicture" :src="scope.row.picture" alt="" />
             </template>
           </el-table-column>
-          <el-table-column prop="title" label="标题" width="180"> </el-table-column>
-          <el-table-column prop="description" label="描述"> </el-table-column>
+          <el-table-column prop="title" label="标题"> </el-table-column>
           <el-table-column label="操作" fixed="right" width="175">
             <template slot-scope="scope">
               <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">查看</el-button>
@@ -60,7 +59,6 @@ export default {
         { prop: 'id', label: 'id' },
         { prop: 'picture', label: '图片' },
         { prop: 'title', label: '标题' },
-        { prop: 'description', label: '描述' },
       ],
       tableData: [],
       loading: true,
