@@ -14,10 +14,8 @@ npm run serve or yarn (run) serve
 
 ### RoadMap
 
-- 1.会员管理
+- 1.访客记录
 
-- 2.订单列表
+- 2.订单列表（发货与退款）
 
-- 3.列表的条件筛选框
-
-- 4.dashboard 数据面板
+- 3.售罄的商品
