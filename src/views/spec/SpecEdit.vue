@@ -62,8 +62,8 @@
                 style="width: 100%"
               >
                 <el-table-column prop="id" label="id" width="80"></el-table-column>
-                <el-table-column prop="value" label="规格值名称" width="150"></el-table-column>
-                <el-table-column prop="extend" label="扩展" width="120"> </el-table-column>
+                <el-table-column prop="value" label="规格值名称" width="220"></el-table-column>
+                <el-table-column prop="extend" label="扩展"> </el-table-column>
                 <el-table-column label="操作" fixed="right" width="180">
                   <template slot-scope="scope">
                     <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>

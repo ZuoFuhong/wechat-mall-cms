@@ -17,12 +17,13 @@
           style="width: 100%"
         >
           <el-table-column prop="id" label="id" width="80"> </el-table-column>
-          <el-table-column prop="picture" label="图片" width="180">
+          <el-table-column prop="picture" label="图片" width="150">
             <template slot-scope="scope">
               <img class="bannerPicture" :src="scope.row.picture" alt="" />
             </template>
           </el-table-column>
-          <el-table-column prop="title" label="标题"> </el-table-column>
+          <el-table-column prop="name" label="名称" width="150"> </el-table-column>
+          <el-table-column prop="status" :formatter="statusFormatter" label="状态"> </el-table-column>
           <el-table-column label="操作" fixed="right" width="175">
             <template slot-scope="scope">
               <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">查看</el-button>
@@ -58,7 +59,8 @@ export default {
       tableColumn: [
         { prop: 'id', label: 'id' },
         { prop: 'picture', label: '图片' },
-        { prop: 'title', label: '标题' },
+        { prop: 'name', label: '名称' },
+        { prop: 'status', label: '状态' },
       ],
       tableData: [],
       loading: true,
@@ -120,6 +122,9 @@ export default {
     editClose() {
       this.showEdit = false
       this.getBanners(1, this.pagination.pageSize)
+    },
+    statusFormatter(row) {
+      return row.status === 1 ? '显示' : '隐藏'
     }
   },
 }

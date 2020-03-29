@@ -18,7 +18,7 @@
               @submit.native.prevent
             >
               <el-form-item label="规格值名称" prop="value">
-                <el-input size="medium" v-model="form.value" maxlength="10" show-word-limit placeholder="请填写规格值名称"></el-input>
+                <el-input size="medium" v-model="form.value" maxlength="15" show-word-limit placeholder="请填写规格值名称"></el-input>
               </el-form-item>
               <el-form-item label="扩展" prop="extend">
                 <el-input size="medium" v-model="form.extend" placeholder="请填写规格值扩展"></el-input>

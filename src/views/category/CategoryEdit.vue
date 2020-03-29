@@ -22,7 +22,7 @@
                 v-model="form.name"
                 placeholder="请填写分类名"
                 show-word-limit
-                maxlength="5"
+                maxlength="8"
               ></el-input>
             </el-form-item>
             <el-form-item label="排序" prop="sort">

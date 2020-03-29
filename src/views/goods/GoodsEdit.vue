@@ -10,10 +10,10 @@
           <el-col :lg="16" :md="20" :sm="24" :xs="24">
             <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" @submit.native.prevent>
               <el-form-item label="标题" prop="title">
-                <el-input size="medium" v-model="form.title" maxlength="15" placeholder="请填写标题"></el-input>
+                <el-input size="medium" v-model="form.title" maxlength="60" show-word-limit placeholder="请填写标题"></el-input>
               </el-form-item>
               <el-form-item label="价格" prop="price">
-                <el-input-number v-model="form.price" :precision="2" :step="1" :min="0.01" :max="10000" label="价格"></el-input-number>
+                <el-input-number v-model="form.price" :precision="2" :step="1" :min="0.01" :max="100000" label="价格"></el-input-number>
               </el-form-item>
               <el-form-item label="折扣" prop="discountPrice">
                 <el-input-number v-model="form.discountPrice" :precision="2" :step="0.1" :min="0" :max="0.99" label="价格"></el-input-number>

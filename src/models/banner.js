@@ -9,20 +9,14 @@ class Banner {
     return get(`cms/banner/${id}`)
   }
 
-  async addBanner({ picture, title, description }) {
-    return post('/cms/banner/edit', {
-      picture,
-      title,
-      description,
-    })
-  }
-
-  async updateBanner({ id, picture, title, description }) {
+  async updateBanner({ id, picture, name, businessType, businessId, status }) {
     return post('/cms/banner/edit', {
       id,
       picture,
-      title,
-      description,
+      name,
+      businessType,
+      businessId,
+      status
     })
   }
 

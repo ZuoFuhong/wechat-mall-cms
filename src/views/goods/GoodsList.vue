@@ -50,10 +50,10 @@
                 <img class="categoryPicture" :src="scope.row.picture" alt="" />
               </template>
             </el-table-column>
-            <el-table-column prop="title" label="标题" width="280"> </el-table-column>
+            <el-table-column prop="title" label="标题" width="350"> </el-table-column>
             <el-table-column prop="categoryName" label="分类" width="150"> </el-table-column>
             <el-table-column prop="price" label="价格（元）" width="150"> </el-table-column>
-            <el-table-column prop="online" :formatter="formatOnline" label="是否上架" width="150"> </el-table-column>
+            <el-table-column prop="online" :formatter="formatOnline" label="是否上架"> </el-table-column>
             <el-table-column label="操作" fixed="right" width="180">
               <template slot-scope="scope">
                 <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>

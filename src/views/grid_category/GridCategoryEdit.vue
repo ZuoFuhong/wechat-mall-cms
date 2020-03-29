@@ -9,7 +9,7 @@
         <el-col :lg="10" :md="20" :sm="24" :xs="24">
           <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" v-loading="loading" @submit.native.prevent>
             <el-form-item label="宫格名" prop="name">
-              <el-input size="medium" v-model="form.name" maxlength="6" show-word-limit placeholder="请填写宫格名"></el-input>
+              <el-input size="medium" v-model="form.name" maxlength="8" show-word-limit placeholder="请填写宫格名"></el-input>
             </el-form-item>
             <el-form-item label="商品分类" prop="categoryId">
               <el-cascader v-model="optionCategory" :options="categoryOptions" clearable @change="handleOptionCategory"></el-cascader>

@@ -6,10 +6,10 @@
     </div>
     <div class="wrap">
       <el-row>
-        <el-col :lg="10" :md="20" :sm="24" :xs="24">
+        <el-col :lg="8" :md="20" :sm="24" :xs="24">
           <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" @submit.native.prevent>
-            <el-form-item label="标题" prop="title">
-              <el-input size="medium" v-model="form.title" maxlength="10" show-word-limit placeholder="请填写标题"></el-input>
+            <el-form-item label="名称" prop="name">
+              <el-input size="medium" v-model="form.name" maxlength="10" show-word-limit placeholder="请填写名称"></el-input>
             </el-form-item>
             <el-form-item label="图片" prop="picture">
               <upload-imgs
@@ -21,6 +21,23 @@
                 :max-num="1"
                 :animated-check="true"
               />
+            </el-form-item>
+            <el-form-item label="关联商品" prop="goodsId">
+                <el-cascader
+                clearable
+                :props="cascaderProps"
+                :show-all-levels="false"
+                v-model="goodsOption"
+                :options="goodsOptions"
+                @change="handleGoodsChange"></el-cascader>
+            </el-form-item>
+            <el-form-item label="是否显示" prop="status">
+              <el-switch
+                v-model="bannerStatus"
+                @change="doSwitchBannerStatus"
+                active-text="显示"
+                inactive-text="隐藏">
+              </el-switch>
             </el-form-item>
             <el-form-item class="submit">
               <el-button type="primary" @click="submitForm('form')">保 存</el-button>
@@ -36,6 +53,7 @@
 <script>
 import UploadImgs from '@/components/base/upload-imgs'
 import banner from '@/models/banner'
+import goods from '@/models/goods'
 import oss from '@/models/oss'
 
 export default {
@@ -48,10 +66,10 @@ export default {
     }
   },
   data() {
-    const titleFunc = (rule, value, callback) => {
+    const nameFunc = (rule, value, callback) => {
       // eslint-disable-line
       if (!value) {
-        return callback(new Error('标题不能为空'))
+        return callback(new Error('名称不能为空'))
       }
       callback()
     }
@@ -64,11 +82,13 @@ export default {
     }
     return {
       form: {
-        title: '',
+        name: '',
         picture: '',
+        goodsId: 0,
+        status: 0
       },
       rules: {
-        title: [{ validator: titleFunc, trigger: 'blur', required: true }],
+        name: [{ validator: nameFunc, trigger: 'blur', required: true }],
         picture: [{ validator: pictureFunc, trigger: 'blur', required: true }],
       },
       fileRules: {
@@ -77,7 +97,14 @@ export default {
         maxSize: 2,
         allowAnimated: 1,
       },
-      initPictureData: []
+      initPictureData: [],
+      bannerStatus: false,
+      // 选择关联商品
+      cascaderProps: {
+        expandTrigger: 'hover',
+      },
+      goodsOption: [],
+      goodsOptions: [],
     }
   },
   async created() {
@@ -85,6 +112,7 @@ export default {
     if (this.bannerId !== 0) {
       await this.getBanner(this.bannerId)
     }
+    await this.loadChooseGoodsList()
   },
   computed: {
     title() {
@@ -99,7 +127,10 @@ export default {
             const res = await banner.updateBanner({
               id: this.bannerId,
               picture: this.form.picture,
-              title: this.form.title,
+              name: this.form.name,
+              businessType: 1,
+              businessId: this.form.goodsId,
+              status: this.form.status
             })
             if (res.error_code === undefined) {
               this.$message.success('操作成功！')
@@ -115,6 +146,19 @@ export default {
         }
       })
     },
+    // 加载可选择的商品
+    async loadChooseGoodsList() {
+      this.goodsOptions = await goods.getGoodsAll()
+    },
+    // 选择商品
+    handleGoodsChange(val) {
+      if (val.length === 3) {
+        const goodsId = val['2']
+        this.form.goodsId = goodsId
+      } else {
+        this.form.goodsId = 0
+      }
+    },
     async getBanner(bannerId) {
       try {
         const res = await banner.getBanner(bannerId)
@@ -122,13 +166,20 @@ export default {
           this.$message.erorr(`${res.msg}`)
           return
         }
-        this.form = res
+        this.form = {
+          name: res.name,
+          picture: res.picture,
+          goodsId: res.goodsId,
+          status: res.status
+        }
         this.initPictureData = [
           {
             id: res.id,
             display: res.picture,
           },
         ]
+        this.goodsOption = [res.categoryId, res.subCategoryId, res.goodsId]
+        this.bannerStatus = res.status === 1
       } catch (error) {
         if (error.error_code === 10020) {
           this.tableData = []
@@ -154,6 +205,9 @@ export default {
     // 重置表单
     resetForm(formName) {
       this.$refs[formName].resetFields()
+    },
+    doSwitchBannerStatus(res) {
+      this.form.status = res ? 1 : 0
     },
   },
 }
