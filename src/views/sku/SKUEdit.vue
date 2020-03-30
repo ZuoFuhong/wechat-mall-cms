@@ -3,7 +3,7 @@
     <div class="container">
       <div class="title plus">
         <span>{{ title }}</span>
-        <span class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
+        <span v-if="skuId > 0" class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
       </div>
       <div class="wrap">
         <el-row>
@@ -19,7 +19,7 @@
                   @change="handleGoodsChange"></el-cascader>
               </el-form-item>
               <el-form-item label="标题" prop="title">
-                <el-input size="medium" v-model="form.title" maxlength="8" show-word-limit placeholder="请填写标题"></el-input>
+                <el-input size="medium" v-model="form.title" maxlength="15" show-word-limit placeholder="请填写标题"></el-input>
               </el-form-item>
               <el-form-item label="价格" prop="price">
                 <el-input-number
@@ -31,9 +31,6 @@
                   :max="100000"
                   label="价格"
                 ></el-input-number>
-              </el-form-item>
-              <el-form-item label="编码" prop="code">
-                <el-input size="medium" v-model="form.code" maxlength="15" show-word-limit placeholder="请填写编码"></el-input>
               </el-form-item>
               <el-form-item label="库存" prop="stock">
                 <el-input-number
@@ -95,6 +92,7 @@ export default {
   props: {
     skuId: {
       type: Number,
+      default: 0
     },
   },
   data() {
@@ -109,6 +107,27 @@ export default {
       // eslint-disable-line
       if (!value) {
         return callback(new Error('标题不能为空'))
+      }
+      callback()
+    }
+    const priceFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('价格不能为空'))
+      }
+      callback()
+    }
+    const stockFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (value === undefined) {
+        return callback(new Error('库存不能为空'))
+      }
+      callback()
+    }
+    const pictureFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('图片不能为空'))
       }
       callback()
     }
@@ -133,6 +152,9 @@ export default {
       rules: {
         title: [{ validator: titleFunc, trigger: 'blur', required: true }],
         goodsId: [{ validator: goodsFunc, trigger: 'blur', required: true }],
+        price: [{ validator: priceFunc, trigger: 'blur', required: true }],
+        stock: [{ validator: stockFunc, trigger: 'blur', required: true }],
+        picture: [{ validator: pictureFunc, trigger: 'blur', required: true }],
       },
       cascaderProps: {
         expandTrigger: 'hover',
@@ -216,52 +238,49 @@ export default {
     async uploadFile(file, call) {
       const data = await oss.uploadFileToOSS(file, 'assets/')
       call(data)
+      this.form.picture = data.url
     },
     // 清理上传的图片
     clearUploadFile() {
       this.$refs.uploadEle.clear()
     },
-    async submitForm() {
-      try {
-        const files = await this.getUploadFile('pictureEle')
-        if (this.form.goodsId === 0) {
-          this.$message.error('商品为必选项！')
-          return
-        }
-        if (this.form.title === '') {
-          this.$message.error('标题为必填项！')
-          return
-        }
-        if (files.length === 0) {
-          this.$message.error('请上传图片！')
-          return
-        }
-        const picture = files[0].display
-        const specs = this.extraceGoodsSkuSpec()
-        if (!specs) {
-          return
-        }
-        const postData = {
-          id: this.skuId,
-          title: this.form.title,
-          price: (this.form.price).toString(),
-          code: this.form.code,
-          stock: this.form.stock,
-          goodsId: this.form.goodsId,
-          online: this.form.online,
-          picture,
-          specs
-        }
-        const res = await sku.editSku(postData)
-        if (res.error_code !== undefined) {
-          this.$message.error(`${res.msg}`)
+    async submitForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            const specs = this.extraceGoodsSkuSpec()
+            if (!specs) {
+              return
+            }
+            const postData = {
+              id: this.skuId,
+              title: this.form.title,
+              price: (this.form.price).toString(),
+              code: this.form.code,
+              stock: this.form.stock,
+              goodsId: this.form.goodsId,
+              online: this.form.online,
+              picture: this.form.picture,
+              specs
+            }
+            const res = await sku.editSku(postData)
+            if (res.error_code !== undefined) {
+              this.$message.error(`${res.msg}`)
+            } else {
+              this.$message.success('操作成功！')
+              if (this.skuId === 0) {
+                this.$router.push('/sku/list')
+              } else {
+                this.back()
+              }
+            }
+          } catch (error) {
+            console.log(error)
+          }
         } else {
-          this.$message.success('操作成功！')
-          this.back()
+          return false
         }
-      } catch (error) {
-        console.log(error)
-      }
+      })
     },
     // 提取Sku-specs
     extraceGoodsSkuSpec() {

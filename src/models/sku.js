@@ -1,8 +1,8 @@
 import { get, post, _delete } from '@/lin/plugins/axios'
 
 class Sku {
-  async getSkuList(page, size) {
-    return get(`cms/sku/list?page=${page}&size=${size}`)
+  async getSkuList(goodsId, keyword, online, page, size) {
+    return get(`cms/sku/list?goodsId=${goodsId}&k=${keyword}&o=${online}&page=${page}&size=${size}`)
   }
 
   async getSku(id) {

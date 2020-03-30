@@ -17,6 +17,15 @@ const skuRouter = {
       inNav: true,
       icon: 'el-icon-truck',
     },
+    {
+      title: '新增SKU',
+      type: 'view',
+      name: 'addSKU',
+      route: '/sku/add',
+      filePath: 'views/sku/SKUEdit.vue',
+      inNav: true,
+      icon: 'el-icon-truck',
+    }
   ],
 }
 

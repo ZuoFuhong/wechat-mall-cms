@@ -23,6 +23,7 @@ class Goods {
     return get(`cms/goods/spec?id=${id}`)
   }
 
+  // 查询全部分类及商品
   async getGoodsAll() {
     return get('cms/goods/all')
   }

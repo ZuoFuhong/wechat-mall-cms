@@ -1,9 +1,44 @@
 <template>
   <div>
     <div class="container" v-if="!showEdit">
-      <div class="title plus">
-        <span>SKU列表</span>
-        <el-button type="primary" plain style="margin-left: 30px;" @click="addSKU">添加SKU</el-button>
+      <div class="search">
+        <el-row>
+          <el-form :model="searchForm" status-icon ref="searchForm" label-width="100px" @submit.native.prevent>
+            <el-col :lg="5">
+              <el-form-item label="商品" prop="goodsId">
+                  <el-cascader
+                  clearable
+                  :props="cascaderProps"
+                  :show-all-levels="false"
+                  v-model="goodsOption"
+                  :options="goodsOptions"
+                  @change="handleGoodsChange"></el-cascader>
+              </el-form-item>
+            </el-col>
+            <el-col :lg="5">
+              <el-form-item label="标题" prop="title">
+                <el-input size="medium" v-model="searchForm.title" maxlength="15" placeholder="搜索SKU标题"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :lg="5">
+              <el-form-item label="上下架" prop="categoryId">
+                  <el-select clearable v-model="searchForm.online" placeholder="请选择">
+                    <el-option
+                      v-for="item in onlineStatus"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :lg="5">
+              <div class="searchButton">
+                <el-button plain type="info" @click="handleSearchGoods('searchForm')">搜索</el-button>
+              </div>
+            </el-col>
+          </el-form>
+        </el-row>
       </div>
       <div class="wrap">
         <div class="category-table">
@@ -24,7 +59,6 @@
             <el-table-column prop="title" label="标题" width="150"> </el-table-column>
             <el-table-column prop="price" label="价格（元）" width="150"> </el-table-column>
             <el-table-column prop="online" :formatter="formatOnline" label="是否上架" width="120"> </el-table-column>
-            <el-table-column prop="code" label="编码" width="150"> </el-table-column>
             <el-table-column prop="stock" label="库存（个）" width="150"> </el-table-column>
             <el-table-column label="操作" fixed="right" width="180">
               <template slot-scope="scope">
@@ -52,6 +86,7 @@
 <script>
 import SkuEdit from './SKUEdit'
 import Sku from '@/models/sku'
+import goods from '@/models/goods'
 
 export default {
   components: {
@@ -67,20 +102,66 @@ export default {
       },
       showEdit: false,
       skuId: 0,
+      searchForm: {
+        title: '',
+        goodsId: null,
+        online: null
+      },
+      cascaderProps: {
+        expandTrigger: 'hover',
+      },
+      // 选择的商品
+      goodsOption: [],
+      goodsOptions: [],
+      onlineStatus: [
+        {
+          value: 0,
+          label: '下架'
+        },
+        {
+          value: 1,
+          label: '上架'
+        }
+      ]
     }
   },
   async created() {
-    await this.getSkuList(1, this.pagination.pageSize)
+    await this.loadSkuList(1, this.pagination.pageSize)
+    await this.loadChooseGoodsList()
     this.loading = false
   },
   methods: {
-    async getSkuList(page, size) {
-      const res = await Sku.getSkuList(page, size)
+    // 搜索sku
+    handleSearchGoods() {
+      this.loadSkuList(1, this.pagination.pageSize)
+    },
+    // 加载sku列表
+    async loadSkuList(page, size) {
+      const condition = this.searchForm
+      let { online } = condition
+      if (!online && online !== 0) {
+        online = -1
+      }
+      const res = await Sku.getSkuList(condition.goodsId, condition.title, online, page, size)
       if (res.error_code !== undefined) {
         this.$message.error(`${res.msg}`)
       } else {
         this.tableData = res.list
         this.pagination.pageTotal = res.total
+      }
+    },
+    // 加载可选择的商品
+    async loadChooseGoodsList() {
+      this.goodsOptions = await goods.getGoodsAll()
+    },
+    // 选择商品
+    handleGoodsChange(val) {
+      if (val.length === 3) {
+        const goodsId = val['2']
+        this.searchForm.goodsId = goodsId
+      } else {
+        this.searchForm.goodsId = 0
+        this.specList = []
       }
     },
     addSKU() {
@@ -111,10 +192,10 @@ export default {
     },
     editClose() {
       this.showEdit = false
-      this.getSkuList(1, this.pagination.pageSize)
+      this.loadSkuList(1, this.pagination.pageSize)
     },
     currentChange(pageNum) {
-      this.getSkuList(pageNum, this.pagination.pageSize)
+      this.loadSkuList(pageNum, this.pagination.pageSize)
     },
     formatOnline(row) {
       return row.online === 1 ? '上架' : '下架'
@@ -136,9 +217,16 @@ export default {
     border-bottom: 1px solid #dae1ec;
   }
   .wrap {
-    padding: 20px;
+    padding: 0 20px;
   }
-
+  .search {
+    padding: 20px 0px 0px;
+    .searchButton {
+      display: flex;
+      height: 40px;
+      margin-left: 30px;
+    }
+  }
   .submit {
     float: left;
   }
