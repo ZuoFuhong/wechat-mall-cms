@@ -79,8 +79,6 @@
               <el-switch
                 v-model="onlineStatus"
                 @change="doSwitchOnlineEvent"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
                 active-text="上架"
                 inactive-text="下架"
               >

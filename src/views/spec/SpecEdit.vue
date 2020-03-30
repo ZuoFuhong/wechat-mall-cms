@@ -30,8 +30,6 @@
                       style="display: inline-flex; align-items: center; line-height: 20px; vertical-align: middle; height: 20px;"
                       v-model="form.standardStatus"
                       @change="doSwitchStandard"
-                      active-color="#13ce66"
-                      inactive-color="#ff4949"
                       active-text="非标准"
                       inactive-text="标准"
                     >

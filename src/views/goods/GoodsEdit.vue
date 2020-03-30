@@ -15,10 +15,10 @@
               <el-form-item label="价格" prop="price">
                 <el-input-number v-model="form.price" :precision="2" :step="1" :min="0.01" :max="100000" label="价格"></el-input-number>
               </el-form-item>
-              <el-form-item label="折扣" prop="discountPrice">
+              <!-- <el-form-item label="折扣" prop="discountPrice">
                 <el-input-number v-model="form.discountPrice" :precision="2" :step="0.1" :min="0" :max="0.99" label="价格"></el-input-number>
-              </el-form-item>
-              <el-form-item label="分类" prop="categoryId">
+              </el-form-item> -->
+              <el-form-item label="分类" prop="subCategoryId">
                 <el-select v-model="form.categoryId" placeholder="请选择分类" @change="doSelectCategory">
                   <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
@@ -67,8 +67,6 @@
                 <el-switch
                   v-model="onlineStatus"
                   @change="doSwitchOnlineEvent"
-                  active-color="#13ce66"
-                  inactive-color="#ff4949"
                   active-text="上架"
                   inactive-text="下架"
                 >
@@ -112,6 +110,17 @@ export default {
       }
       callback()
     }
+    const subCategoryFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('请选择分类和子分类'))
+      }
+      callback()
+    }
+    const pictureFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      callback()
+    }
     return {
       loading: true,
       form: {
@@ -132,6 +141,8 @@ export default {
       rules: {
         title: [{ validator: titleFunc, trigger: 'blur', required: true }],
         price: [{ validator: priceFunc, trigger: 'blur', required: true }],
+        subCategoryId: [{ validator: subCategoryFunc, trigger: 'blur', required: true }],
+        picture: [{ validator: pictureFunc, trigger: 'blur', required: true }],
       },
       fileRules: {
         // minWidth: 100,
@@ -176,81 +187,59 @@ export default {
     },
   },
   methods: {
-    async submitForm() {
-      try {
-        const pictureFiles = await this.getUploadFile('pictureEle')
-        const bannerPictureFiles = await this.getUploadFile('bannerPictureEle')
-        const detailPicturepictureFiles = await this.getUploadFile('detailPictureEle')
-        if (this.form.title === '') {
-          this.$message.error('标题为必填项！')
-          return
-        }
-        if (!this.form.price) {
-          this.$message.error('售价不能为空！')
-          return
-        }
-        if (this.form.price < 0.01) {
-          this.$message.error('售价大于0.01')
-          return
-        }
-        if (!this.form.categoryId) {
-          this.$message.error('请选择分类！')
-          return
-        }
-        if (!this.form.subCategoryId) {
-          this.$message.error('请选择子分类！')
-          return
-        }
-        if (pictureFiles.length === 0) {
-          this.$message.error('请上传主图！')
-          return
-        }
-        if (bannerPictureFiles.length === 0) {
-          this.$message.error('至少上传一张轮播图！')
-          return
-        }
-        if (detailPicturepictureFiles.length === 0) {
-          this.$message.error('至少上传一张详情图！')
-          return
-        }
-        const picture = pictureFiles[0].display
-        const bannerPicture = []
-        for (let i = 0; i < bannerPictureFiles.length; i++) {
-          bannerPicture.push(bannerPictureFiles[i].display)
-        }
-        const detailPicture = []
-        for (let i = 0; i < detailPicturepictureFiles.length; i++) {
-          detailPicture.push(detailPicturepictureFiles[i].display)
-        }
-        const postData = {
-          id: this.goodsId,
-          brandName: this.form.brandName,
-          title: this.form.title,
-          price: (this.form.price).toString(),
-          discountPrice: (this.form.discountPrice).toString(),
-          categoryId: this.form.subCategoryId,
-          online: this.form.online,
-          picture,
-          bannerPicture: JSON.stringify(bannerPicture),
-          detailPicture: JSON.stringify(detailPicture),
-          tags: '',
-          description: '',
-          specList: this.checkedSpecs
-        }
-        const res = await goods.editGoods(postData)
-        if (res.error_code !== undefined) {
-          this.$message.error(`${res.msg}`)
-        } else {
-          this.$message.success('操作成功！')
-          if (this.goodsId === 0) {
-            this.$router.push('/goods/list')
-          } else {
-            this.back()
+    async submitForm(formName) {
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            const pictureFiles = await this.getUploadFile('pictureEle')
+            const bannerPictureFiles = await this.getUploadFile('bannerPictureEle')
+            const detailPicturepictureFiles = await this.getUploadFile('detailPictureEle')
+            if (pictureFiles.length === 0) {
+              this.$message.error('请上传主图！')
+              return
+            }
+            const picture = pictureFiles[0].display
+            const bannerPicture = []
+            for (let i = 0; i < bannerPictureFiles.length; i++) {
+              bannerPicture.push(bannerPictureFiles[i].display)
+            }
+            const detailPicture = []
+            for (let i = 0; i < detailPicturepictureFiles.length; i++) {
+              detailPicture.push(detailPicturepictureFiles[i].display)
+            }
+            const postData = {
+              id: this.goodsId,
+              brandName: this.form.brandName,
+              title: this.form.title,
+              price: (this.form.price).toString(),
+              discountPrice: (this.form.discountPrice).toString(),
+              categoryId: this.form.subCategoryId,
+              online: this.form.online,
+              picture,
+              bannerPicture: JSON.stringify(bannerPicture),
+              detailPicture: JSON.stringify(detailPicture),
+              tags: '',
+              description: '',
+              specList: this.checkedSpecs
+            }
+            const res = await goods.editGoods(postData)
+            if (res.error_code !== undefined) {
+              this.$message.error(`${res.msg}`)
+            } else {
+              this.$message.success('操作成功！')
+              if (this.goodsId === 0) {
+                this.$router.push('/goods/list')
+              } else {
+                this.back()
+              }
+            }
+          } catch (error) {
+            console.log(error)
           }
+        } else {
+          return false
         }
-      } catch (error) {
-        console.log(error)
-      }
+      })
     },
     // 重置表单
     resetForm(formName) {

@@ -22,21 +22,11 @@
                 v-model="form.name"
                 placeholder="请填写分类名"
                 show-word-limit
-                maxlength="8"
+                maxlength="15"
               ></el-input>
             </el-form-item>
             <el-form-item label="排序" prop="sort">
               <el-input size="medium" v-model="form.sort" type="number" min="0" placeholder="请填写分类排序"></el-input>
-            </el-form-item>
-            <el-form-item label="显示上线" prop="online">
-              <el-switch
-                v-model="form.onlineBool"
-                @change="changeOnlineEvent"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
-                active-text="上线"
-                inactive-text="下线"
-              ></el-switch>
             </el-form-item>
             <el-form-item label="图片" prop="picture">
               <upload-imgs
@@ -50,7 +40,15 @@
               />
             </el-form-item>
             <el-form-item label="分类描述" prop="description">
-              <el-input size="medium" v-model="form.description" placeholder="请填写分类描述"></el-input>
+              <el-input size="medium" v-model="form.description" placeholder="请填写分类描述" maxlength="30" show-word-limit></el-input>
+            </el-form-item>
+            <el-form-item label="是否上线" prop="online">
+              <el-switch
+                v-model="form.onlineBool"
+                @change="changeOnlineEvent"
+                active-text="是"
+                inactive-text="否"
+              ></el-switch>
             </el-form-item>
             <el-form-item class="submit">
               <el-button type="primary" @click="submitForm('form')">保 存</el-button>
@@ -82,8 +80,14 @@ export default {
       callback()
     }
     const sortFunc = (rule, value, callback) => {
-      if (value < 0) {
-        return callback(new Error('排序不能小于0'))
+      if (value === undefined) {
+        return callback(new Error('排序不能为空'))
+      }
+      callback()
+    }
+    const pictureFunc = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('图片不能为空'))
       }
       callback()
     }
@@ -99,6 +103,7 @@ export default {
       rules: {
         name: [{ validator: nameFunc, trigger: 'blur', required: true }],
         sort: [{ validator: sortFunc, trigger: 'blur', required: true }],
+        picture: [{ validator: pictureFunc, trigger: 'blur', required: true }],
       },
       fileRules: {
         // minWidth: 100,
@@ -161,6 +166,7 @@ export default {
     async uploadFile(file, call) {
       const data = await oss.uploadFileToOSS(file, 'assets/')
       call(data)
+      this.form.picture = data.url
     },
     // 清理上传的图片
     clearUploadFile() {
@@ -170,42 +176,35 @@ export default {
       this.form.online = val ? 1 : 0
     },
     async submitForm(formName) {
-      try {
-        if (this.form.name === '') {
-          this.$message.error('分类名为必填项！')
-          return
-        }
-        if (this.form.sort < 0) {
-          this.$message.error('排序不能小于0！')
-          return
-        }
-        const files = await this.getUploadFile('uploadEle')
-        if (files.length === 0) {
-          this.$message.error('请上传图片！')
-          return
-        }
-        const postData = {
-          id: this.categoryId,
-          parentId: this.pid,
-          name: this.form.name,
-          sort: parseInt(this.form.sort, 10),
-          online: this.form.online,
-          picture: files[0].display,
-          description: this.form.description,
-        }
-        const res = await category.editCategory(postData)
-        if (res.error_code !== undefined) {
-          this.$message.error(`${res.msg}`)
+      this.$refs[formName].validate(async valid => {
+        if (valid) {
+          try {
+            const postData = {
+              id: this.categoryId,
+              parentId: this.pid,
+              name: this.form.name,
+              sort: parseInt(this.form.sort, 10),
+              online: this.form.online,
+              picture: this.form.picture,
+              description: this.form.description,
+            }
+            const res = await category.editCategory(postData)
+            if (res.error_code !== undefined) {
+              this.$message.error(`${res.msg}`)
+            } else {
+              this.$message.success('操作成功！')
+              this.resetForm(formName)
+              this.clearUploadFile()
+              this.back()
+            }
+          } catch (error) {
+            this.$message.error(error)
+            console.log(error)
+          }
         } else {
-          this.$message.success('操作成功！')
-          this.resetForm(formName)
-          this.clearUploadFile()
-          this.back()
+          return false
         }
-      } catch (error) {
-        this.$message.error(error)
-        console.log(error)
-      }
+      })
     },
     // 重置表单
     resetForm(formName) {

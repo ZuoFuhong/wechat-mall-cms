@@ -60,8 +60,6 @@
                   style="display: inline-flex; align-items: center; line-height: 20px; vertical-align: middle; height: 20px;"
                   v-model="onlineStatus"
                   @change="doSwitchOnline"
-                  active-color="#13ce66"
-                  inactive-color="#ff4949"
                   active-text="上架"
                   inactive-text="下架"
                 >
