@@ -9,7 +9,7 @@
         <el-col :lg="10" :md="20" :sm="24" :xs="24">
           <el-form :rules="rules" :model="form" status-icon ref="form" label-width="100px" @submit.native.prevent>
             <el-form-item label="标题" prop="title">
-              <el-input :disabled="couponId !== 0" size="medium" v-model="form.title" placeholder="请填写标题"></el-input>
+              <el-input :disabled="couponId !== 0" size="medium" v-model="form.title" placeholder="请填写标题" maxlength="15" show-word-limit></el-input>
             </el-form-item>
             <el-form-item label="类型" prop="type">
               <el-select v-model="form.type" @change="doSwitchCouponType" :disabled="couponId !== 0" placeholder="请选择">
@@ -40,7 +40,7 @@
                 :step="1"
                 :min="0.01"
                 :max="100000"
-                label="满减额"
+                label="优惠额"
               ></el-input-number>
             </el-form-item>
             <el-form-item v-if="couponType === 2 || couponType === 4" label="折扣" prop="rate">
@@ -51,11 +51,12 @@
                 :step="0.1"
                 :min="0.01"
                 :max="0.99"
-                label="满减额"
+                label="折扣"
               ></el-input-number>
             </el-form-item>
             <el-form-item label="时间" prop="couponTime">
               <el-date-picker
+                :disabled="couponId !== 0"
                 @change="handleDatePicker"
                 v-model="form.couponTime"
                 :picker-options="pickerOptions0"
@@ -64,6 +65,12 @@
                 start-placeholder="开始日期"
                 end-placeholder="结束日期">
               </el-date-picker>
+            </el-form-item>
+            <el-form-item label="发券数量" prop="grantNum">
+              <el-input-number size="medium" v-model="form.grantNum" :min="1" :max="100000" label="发券数量"></el-input-number>
+            </el-form-item>
+            <el-form-item label="单人限领" prop="limitNum">
+              <el-input-number size="medium" v-model="form.limitNum" :min="1" :max="100000" label="单人限领"></el-input-number>
             </el-form-item>
             <el-form-item label="描述" prop="description">
               <el-input
@@ -120,10 +127,26 @@ export default {
       }
       callback()
     }
-    const timeFunc = (rule, value, callback) => {
+    const grantNumFunc = (rule, value, callback) => {
       // eslint-disable-line
       if (!value) {
-        console.log(value)
+        return callback(new Error('发券数量不能为空'))
+      }
+      callback()
+    }
+    const limitNumFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (!value) {
+        return callback(new Error('单人限领不能为空'))
+      }
+      if (this.form.grantNum < value) {
+        return callback(new Error('不能超过发券总量'))
+      }
+      callback()
+    }
+    const timeFunc = (rule, value, callback) => {
+      // eslint-disable-line
+      if (value.length === 0) {
         return callback(new Error('请选择时间'))
       }
       callback()
@@ -137,7 +160,9 @@ export default {
         rate: 0,
         description: '',
         online: 0,
-        couponTime: []
+        couponTime: [],
+        grantNum: 1,
+        limitNum: 1
       },
       couponTypeList: [
         {
@@ -150,7 +175,7 @@ export default {
         },
         {
           value: 3,
-          label: '无门槛券'
+          label: '代金券'
         },
         {
           value: 4,
@@ -161,6 +186,8 @@ export default {
       rules: {
         title: [{ validator: titleFunc, trigger: 'blur', required: true }],
         type: [{ validator: typeFunc, trigger: 'blur', required: true }],
+        grantNum: [{ validator: grantNumFunc, trigger: 'blur', required: true }],
+        limitNum: [{ validator: limitNumFunc, trigger: 'blur', required: true }],
         couponTime: [{ validator: timeFunc, trigger: 'blur', required: true }],
       },
       onlineStatus: false,
@@ -192,6 +219,8 @@ export default {
               minus: (this.form.minus).toString(),
               rate: (this.form.rate).toString(),
               type: this.form.type,
+              grantNum: this.form.grantNum,
+              limitNum: this.form.limitNum,
               startTime,
               endTime,
               description: this.form.description,
@@ -227,7 +256,9 @@ export default {
           minus: res.minus,
           rate: res.rate,
           description: res.description,
-          online: res.online
+          online: res.online,
+          grantNum: res.grantNum,
+          limitNum: res.limitNum
         }
         this.couponType = res.type
         this.onlineStatus = res.online === 1

@@ -5,9 +5,9 @@ class Coupon {
     return get(`cms/coupon/list?page=${page}&size=${size}`)
   }
 
-  async editCoupon({ id, title, fullMoney, minus, rate, type, startTime, endTime, description, online }) {
+  async editCoupon({ id, title, fullMoney, minus, rate, type, grantNum, limitNum, startTime, endTime, description, online }) {
     return post('cms/coupon/edit', {
-      id, title, fullMoney, minus, rate, type, startTime, endTime, description, online
+      id, title, fullMoney, minus, rate, type, grantNum, limitNum, startTime, endTime, description, online
     })
   }
 

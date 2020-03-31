@@ -31,7 +31,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination
+        <!-- <el-pagination
           class="pagination"
           background
           layout="prev, pager, next"
@@ -39,7 +39,7 @@
           :total="pagination.pageTotal ? pagination.pageTotal : null"
           @current-change="currentChange"
         >
-        </el-pagination>
+        </el-pagination> -->
       </div>
     </div>
     <coupon-edit v-else @editClose="editClose" :couponId="couponId"></coupon-edit>
@@ -146,7 +146,7 @@ export default {
           couponType = '折扣券'
           break
         case 3:
-          couponType = '无门槛券'
+          couponType = '代金券'
           break
         case 4:
           couponType = '满减折扣券'

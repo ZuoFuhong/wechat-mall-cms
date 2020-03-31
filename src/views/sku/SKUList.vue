@@ -180,7 +180,7 @@ export default {
       }).then(async () => {
         const res = await Sku.deleteSku(val.id)
         if (res.error_code === undefined) {
-          this.getSkuList(1, this.pagination.pageSize)
+          this.loadSkuList(1, this.pagination.pageSize)
           this.$message({
             type: 'success',
             message: '删除成功！',

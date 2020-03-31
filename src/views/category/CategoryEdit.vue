@@ -42,12 +42,12 @@
             <el-form-item label="分类描述" prop="description">
               <el-input size="medium" v-model="form.description" placeholder="请填写分类描述" maxlength="30" show-word-limit></el-input>
             </el-form-item>
-            <el-form-item label="是否上线" prop="online">
+            <el-form-item label="是否上架" prop="online">
               <el-switch
                 v-model="form.onlineBool"
                 @change="changeOnlineEvent"
-                active-text="是"
-                inactive-text="否"
+                active-text="上架"
+                inactive-text="下架"
               ></el-switch>
             </el-form-item>
             <el-form-item class="submit">
@@ -179,6 +179,24 @@ export default {
       this.$refs[formName].validate(async valid => {
         if (valid) {
           try {
+            if (this.categoryId !== 0 && this.form.online === 0) {
+              const confirmStatus = await this.$confirm('此操作将下架其下所有子分类和所有商品, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+              }).then(() => {
+                console.log('sb eslint')
+                return true
+              }).catch(() => {
+                console.log('sb eslint')
+                return false
+              })
+              if (!confirmStatus) {
+                this.form.onlineBool = true
+                this.form.online = 1
+                return
+              }
+            }
             const postData = {
               id: this.categoryId,
               parentId: this.pid,
