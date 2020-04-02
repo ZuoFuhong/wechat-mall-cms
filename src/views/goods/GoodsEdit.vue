@@ -198,6 +198,11 @@ export default {
               this.$message.error('请上传主图！')
               return
             }
+            const specList = this.checkedSpecs
+            if (specList.length > 3) {
+              this.$message.error('最多选择3个规格')
+              return
+            }
             const picture = pictureFiles[0].display
             const bannerPicture = []
             for (let i = 0; i < bannerPictureFiles.length; i++) {
@@ -220,7 +225,7 @@ export default {
               detailPicture: JSON.stringify(detailPicture),
               tags: '',
               description: '',
-              specList: this.checkedSpecs
+              specList
             }
             const res = await goods.editGoods(postData)
             if (res.error_code !== undefined) {

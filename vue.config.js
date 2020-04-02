@@ -35,7 +35,7 @@ module.exports = {
     },
   },
   devServer: {
-    proxy: 'http://127.0.0.1:8081'
+    proxy: 'http://192.168.1.118:8081'
   },
   // node_modules依赖项es6语法未转换问题
   transpileDependencies: [
