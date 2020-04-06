@@ -168,7 +168,7 @@ export default {
       return row.online === 1 ? '标准' : '非标准'
     },
     handleEdit(val) {
-      this.$router.push(`/spec/edit/${val.id}`)
+      this.$router.push(`/goods/spec/edit/${val.id}`)
     },
     handleDelete(val) {
       console.log(val)

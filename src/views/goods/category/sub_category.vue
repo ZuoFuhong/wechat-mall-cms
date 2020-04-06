@@ -2,8 +2,8 @@
   <div>
     <div class="container" v-if="!showEdit">
       <div class="title plus">
-        <span>分类列表</span>
-        <el-button type="primary" plain style="margin-left: 30px;" @click="addCategory">添加分类</el-button>
+        <span>子分类列表</span>
+        <el-button type="primary" plain style="margin-left: 30px;" @click="addCategory">添加子分类</el-button>
       </div>
       <div class="wrap">
         <div class="category-table">
@@ -24,9 +24,8 @@
             <el-table-column prop="name" label="名称" width="150"> </el-table-column>
             <el-table-column prop="status" :formatter="formatStatus" label="状态" width="120"> </el-table-column>
             <el-table-column prop="description" label="描述"> </el-table-column>
-            <el-table-column label="操作" fixed="right" width="230">
+            <el-table-column label="操作" fixed="right" width="180">
               <template slot-scope="scope">
-                <el-button plain size="mini" @click="handleSubCategory(scope.row)" type="primary">子分类</el-button>
                 <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>
                 <el-button plain size="mini" @click="handleDelete(scope.row)" type="danger">删除</el-button>
               </template>
@@ -49,33 +48,35 @@
 </template>
 
 <script>
-import CategoryEdit from './CategoryEdit'
+import CategoryEdit from './edit'
 import category from '@/models/category'
 
 export default {
-  // 建模，category
   components: {
     CategoryEdit,
   },
   data() {
     return {
-      loading: false,
+      loading: true,
       tableData: [],
-      showEdit: false,
-      categoryId: 0,
       pagination: {
         pageSize: 10,
-        pageTotal: 0,
+        pageTotal: 100,
       },
+      showEdit: false,
+      pid: 0,
+      categoryId: 0,
     }
   },
   async created() {
-    await this.getCategorys(0, 1, this.pagination.pageSize)
+    this.pid = this.$route.params.id
+    console.log('pid: ', this.pid)
+    await this.getCategorys()
     this.loading = false
   },
   methods: {
-    async getCategorys(pid, pageNum, pageSize) {
-      const res = await category.getCategoryList(pid, pageNum, pageSize)
+    async getCategorys() {
+      const res = await category.getCategoryList(this.pid, 1, this.pagination.pageSize)
       if (res.error_code !== undefined) {
         this.$message.error(`查询异常: ${res.msg}`)
       } else {
@@ -86,25 +87,11 @@ export default {
     formatStatus(row) {
       return row.online === 1 ? '上线' : '下线'
     },
-    handleSubCategory(val) {
-      console.log('val:', val)
-      const path = `/sub_category/${val.id}/list`
-      this.$router.push(path)
-    },
-    addCategory() {
-      this.categoryId = 0
-      this.showEdit = true
-    },
-    async editClose() {
-      this.showEdit = false
-      await this.getCategorys()
-    },
     handleEdit(val) {
       this.categoryId = val.id
       this.showEdit = true
     },
     handleDelete(val) {
-      console.log('val:', val)
       this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -114,13 +101,21 @@ export default {
         if (res.error_code !== undefined) {
           this.$message.error(`${res.msg}`)
         } else {
-          await this.getCategorys()
-          this.$message.success('操作成功！')
+          this.$message.success('删除成功！')
+          this.getCategorys()
         }
       })
     },
+    addCategory() {
+      this.categoryId = 0
+      this.showEdit = true
+    },
+    async editClose() {
+      this.showEdit = false
+      await this.getCategorys()
+    },
     currentChange(pageNum) {
-      this.getCategorys(0, pageNum, this.pagination.pageSize)
+      this.getCategoryList(this.pid, pageNum, this.pagination.pageSize)
     },
   },
 }

@@ -1,24 +1,22 @@
 import adminConfig from './admin'
-import bannerConfig from './banner'
-import couponConfig from './coupon'
-import categoryConfig from './category'
-import gridCategoryConfig from './grid_category'
-import specConfig from './spec'
+import shopConfig from './shop'
+import marketConfig from './market'
 import goodsConfig from './goods'
 import skuConfig from './sku'
+import orderConfig from './order'
 import pluginsConfig from './plugins'
 import Utils from '@/lin/utils/util'
 
 // eslint-disable-next-line import/no-mutable-exports
 let homeRouter = [
   {
-    title: '首页',
+    title: '数据',
     type: 'view',
     name: Symbol('dashboard'),
     route: '/dashboard',
     filePath: 'views/dashboard/dashboard.vue',
     inNav: true,
-    icon: 'el-icon-s-home',
+    icon: 'el-icon-s-data',
     order: 0,
   },
   {
@@ -30,13 +28,11 @@ let homeRouter = [
     inNav: false,
     icon: 'iconfont icon-rizhiguanli',
   },
-  bannerConfig,
-  gridCategoryConfig,
-  couponConfig,
-  categoryConfig,
-  specConfig,
+  shopConfig,
   goodsConfig,
+  orderConfig,
   skuConfig,
+  marketConfig,
   adminConfig,
 ]
 

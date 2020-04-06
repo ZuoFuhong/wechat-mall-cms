@@ -48,7 +48,7 @@
 
 <script>
 import coupon from '@/models/coupon'
-import CouponEdit from './CouponEdit'
+import CouponEdit from './edit'
 
 export default {
   components: {

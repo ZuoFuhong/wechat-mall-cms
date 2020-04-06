@@ -48,7 +48,7 @@
 
 <script>
 import banner from '@/models/banner'
-import BannerEdit from './BannerEdit'
+import BannerEdit from './edit'
 
 export default {
   components: {

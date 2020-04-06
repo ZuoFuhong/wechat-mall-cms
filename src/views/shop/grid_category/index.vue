@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import GridCategoryEdit from './GridCategoryEdit'
+import GridCategoryEdit from './edit'
 import gridCategory from '@/models/grid_category'
 
 export default {

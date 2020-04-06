@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import SpecAttrEdit from './SpecAttrEdit'
+import SpecAttrEdit from './attr_edit'
 import Spec from '@/models/spec'
 
 export default {

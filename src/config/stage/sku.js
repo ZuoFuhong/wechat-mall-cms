@@ -1,7 +1,7 @@
 const skuRouter = {
   route: null,
   name: null,
-  title: 'SKU管理',
+  title: '库存',
   type: 'folder', // 类型: folder, tab, view
   icon: 'el-icon-truck',
   filePath: 'views/sku/', // 文件路径

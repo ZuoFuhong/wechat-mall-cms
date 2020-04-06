@@ -1,7 +1,7 @@
 const adminRouter = {
   route: null,
   name: null,
-  title: '权限管理',
+  title: '权限',
   type: 'folder',
   icon: 'iconfont icon-huiyuanguanli',
   filePath: 'views/admin/',
