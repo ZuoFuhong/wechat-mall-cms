@@ -9,24 +9,6 @@ const spuRouter = {
   inNav: true,
   children: [
     {
-      title: '商品列表',
-      type: 'view',
-      name: 'goodsList',
-      route: '/goods/list',
-      filePath: 'views/goods/GoodsList.vue',
-      inNav: true,
-      icon: 'el-icon-sell',
-    },
-    {
-      title: '新增商品',
-      type: 'view',
-      name: 'addGoods',
-      route: '/goods/add',
-      filePath: 'views/goods/GoodsEdit.vue',
-      inNav: true,
-      icon: 'el-icon-sell',
-    },
-    {
       title: '商品分类',
       type: 'view',
       name: 'goods_category',
@@ -45,7 +27,7 @@ const spuRouter = {
       icon: '',
     },
     {
-      title: '商品规格',
+      title: '规格尺寸',
       type: 'view',
       name: 'specList',
       route: '/goods/spec/list',
@@ -61,6 +43,24 @@ const spuRouter = {
       filePath: 'views/goods/spec/edit.vue',
       inNav: false,
       icon: '',
+    },
+    {
+      title: '商品管理',
+      type: 'view',
+      name: 'goodsList',
+      route: '/goods/list',
+      filePath: 'views/goods/GoodsList.vue',
+      inNav: true,
+      icon: 'el-icon-sell',
+    },
+    {
+      title: '库存管理',
+      type: 'view',
+      name: 'skuList',
+      route: '/goods/sku/list',
+      filePath: 'views/goods/sku/list.vue',
+      inNav: true,
+      icon: 'el-icon-truck',
     },
   ],
 }

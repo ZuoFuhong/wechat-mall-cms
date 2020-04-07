@@ -3,7 +3,7 @@
     <div class="container">
       <div class="title plus">
         <span>{{ title }}</span>
-        <span v-if="skuId > 0" class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
+        <span class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
       </div>
       <div class="wrap">
         <el-row>
@@ -266,11 +266,7 @@ export default {
               this.$message.error(`${res.msg}`)
             } else {
               this.$message.success('操作成功！')
-              if (this.skuId === 0) {
-                this.$router.push('/sku/list')
-              } else {
-                this.back()
-              }
+              this.back()
             }
           } catch (error) {
             console.log(error)

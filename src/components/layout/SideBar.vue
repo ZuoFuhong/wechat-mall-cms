@@ -1,25 +1,6 @@
 <template>
   <div class="app-sidebar">
-    <div class="logo" v-if="!elMenuCollapse"><img src="../../assets/img/logo.png" alt="" /></div>
-    <div class="mobile-logo" v-else><img src="../../assets/img/mobile-logo.png" alt="" /></div>
-    <div style="margin-bottom:50px">
-      <div v-if="showSidebarSearch" style="margin-top: 15px">
-        <div class="search-display" v-if="!showSearchList" @click="toSearch"><i class="el-icon-search"></i></div>
-        <el-select
-          v-if="showSearchList"
-          size="medium"
-          filterable
-          clearable
-          :filter-method="search"
-          v-model="sidebar"
-          @change="handleChange"
-          class="search"
-          placeholder="请输入关键字"
-          ref="searchInput"
-        >
-          <el-option v-for="item in groups" :key="item.key" :label="item.title" :value="item.path"> </el-option>
-        </el-select>
-      </div>
+    <div>
       <el-menu
         class="el-menu-vertical-demo"
         ref="meun"

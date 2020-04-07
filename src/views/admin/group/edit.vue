@@ -2,7 +2,7 @@
   <div>
     <div class="container">
       <div class="title">
-        <span>修改规格值</span>
+        <span>{{title}}</span>
         <span class="back" @click="back"> <i class="iconfont icon-fanhui"></i> 返回 </span>
       </div>
       <div class="wrap">
@@ -200,7 +200,7 @@ export default {
   },
   computed: {
     title() {
-      return this.groupId === 0 ? '新增分组' : '更新分组'
+      return this.groupId === 0 ? '新增分组' : '编辑分组'
     }
   },
 }

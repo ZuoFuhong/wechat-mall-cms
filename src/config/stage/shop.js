@@ -1,7 +1,7 @@
 const shopRouter = {
   route: null,
   name: null,
-  title: '店铺',
+  title: '商城',
   type: 'folder',
   icon: 'el-icon-s-shop',
   filePath: 'views/banner/',
@@ -9,7 +9,7 @@ const shopRouter = {
   inNav: true,
   children: [
     {
-      title: 'Banner',
+      title: '轮播图',
       type: 'view',
       name: 'bannerList',
       route: '/shop/banner/list',
@@ -18,7 +18,7 @@ const shopRouter = {
       icon: 'el-icon-postcard',
     },
     {
-      title: '宫格',
+      title: '八宫格',
       type: 'view',
       name: 'gridCategory',
       route: '/shop/grid_category/list',

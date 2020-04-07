@@ -43,7 +43,7 @@
 
 <script>
 import admin from '@/models/admin'
-import GroupEdit from './GroupEdit'
+import GroupEdit from './edit'
 
 export default {
   components: {

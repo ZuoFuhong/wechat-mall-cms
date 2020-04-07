@@ -13,7 +13,7 @@ const marketRouter = {
       type: 'view',
       name: 'couponList',
       route: '/market/coupon/list',
-      filePath: 'views/market/coupon/index.vue',
+      filePath: 'views/market/coupon/list.vue',
       inNav: true,
       icon: 'el-icon-s-ticket',
     }

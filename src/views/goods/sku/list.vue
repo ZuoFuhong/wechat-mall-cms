@@ -33,8 +33,9 @@
               </el-form-item>
             </el-col>
             <el-col :lg="5">
-              <div class="searchButton">
-                <el-button plain type="info" @click="handleSearchGoods('searchForm')">搜索</el-button>
+              <div class="btn-group">
+                <el-button plain type="primary" @click="handleSearchGoods('searchForm')"><i class="el-icon-search"></i> 搜索</el-button>
+                <el-button plain type="primary" @click="handleAddSKU()"><i class="el-icon-plus"></i> 添加SKU</el-button>
               </div>
             </el-col>
           </el-form>
@@ -51,12 +52,12 @@
             style="width: 100%"
           >
             <el-table-column prop="id" label="id" width="80"></el-table-column>
-            <el-table-column prop="picture" label="图片" width="180">
+            <el-table-column prop="picture" label="图片" width="150">
               <template slot-scope="scope">
                 <img class="categoryPicture" :src="scope.row.picture" alt="" />
               </template>
             </el-table-column>
-            <el-table-column prop="title" label="标题" width="150"> </el-table-column>
+            <el-table-column prop="title" label="标题" width="200"> </el-table-column>
             <el-table-column prop="price" label="价格（元）" width="150"> </el-table-column>
             <el-table-column prop="online" :formatter="formatOnline" label="是否上架" width="120"> </el-table-column>
             <el-table-column prop="stock" label="库存（个）" width="150"> </el-table-column>
@@ -84,7 +85,7 @@
 </template>
 
 <script>
-import SkuEdit from './SKUEdit'
+import SkuEdit from './edit'
 import Sku from '@/models/sku'
 import goods from '@/models/goods'
 
@@ -164,10 +165,12 @@ export default {
         this.specList = []
       }
     },
-    addSKU() {
+    // 添加SKU
+    handleAddSKU() {
       this.skuId = 0
       this.showEdit = true
     },
+    // 编辑SKU
     handleEdit(val) {
       this.skuId = val.id
       this.showEdit = true
@@ -221,10 +224,11 @@ export default {
   }
   .search {
     padding: 20px 0px 0px;
-    .searchButton {
+    .btn-group {
       display: flex;
-      height: 40px;
-      margin-left: 30px;
+      align-items: center;
+      margin-left: 20px;
+      padding: 4px 0;
     }
   }
   .submit {

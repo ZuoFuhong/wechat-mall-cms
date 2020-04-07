@@ -5,17 +5,17 @@
         <el-row>
           <el-form :model="searchForm" status-icon ref="searchForm" label-width="100px" @submit.native.prevent>
             <el-col :lg="5">
-              <el-form-item label="商品标题" prop="title">
+              <el-form-item label="商品标题" prop="title" style="margin-bottom: 0 !important;">
                 <el-input size="medium" v-model="searchForm.goodsName" maxlength="15" placeholder="搜索商品名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :lg="5">
-              <el-form-item label="商品分类" prop="categoryId">
+              <el-form-item label="商品分类" prop="categoryId" style="margin-bottom: 0 !important;">
                   <el-cascader v-model="optionCategory" :props="categoryProps" clearable @change="handleOptionCategory"></el-cascader>
               </el-form-item>
             </el-col>
             <el-col :lg="5">
-              <el-form-item label="上下架" prop="categoryId">
+              <el-form-item label="上下架" prop="categoryId" style="margin-bottom: 0 !important;">
                   <el-select clearable v-model="searchForm.online" placeholder="请选择">
                     <el-option
                       v-for="item in onlineStatus"
@@ -26,9 +26,10 @@
                   </el-select>
               </el-form-item>
             </el-col>
-            <el-col :lg="5">
-              <div class="searchButton">
-                <el-button plain type="info" @click="handleSearchGoods('searchForm')">搜索</el-button>
+            <el-col :lg="2">
+              <div class="btn-group">
+                <el-button plain type="primary" @click="handleSearchGoods('searchForm')"><i class="el-icon-search"></i> 搜索</el-button>
+                <el-button plain type="primary" @click="handleAddGoods()"><i class="el-icon-plus"></i> 添加商品</el-button>
               </div>
             </el-col>
           </el-form>
@@ -182,10 +183,6 @@ export default {
     formatOnline(row) {
       return row.online === 1 ? '上架' : '下架'
     },
-    addGoods() {
-      this.goodsId = 0
-      this.showEdit = true
-    },
     handleEdit(val) {
       this.goodsId = val.id
       this.showEdit = true
@@ -215,8 +212,14 @@ export default {
     currentChange(pageNum) {
       this.getGoodsList(pageNum, this.pagination.pageSize)
     },
+    // 搜索商品
     handleSearchGoods() {
       this.getGoodsList(1, this.pagination.pageSize)
+    },
+    // 新增商品
+    handleAddGoods() {
+      this.goodsId = 0
+      this.showEdit = true
     }
   },
 }
@@ -239,10 +242,11 @@ export default {
   }
   .search {
     padding: 20px 0px 0px;
-    .searchButton {
+    .btn-group {
       display: flex;
-      height: 40px;
-      margin-left: 30px;
+      align-items: center;
+      margin-left: 20px;
+      padding: 4px 0;
     }
   }
   .submit {

@@ -1,7 +1,7 @@
 const adminRouter = {
   route: null,
   name: null,
-  title: '权限',
+  title: '管理员/权限',
   type: 'folder',
   icon: 'iconfont icon-huiyuanguanli',
   filePath: 'views/admin/',
@@ -10,46 +10,22 @@ const adminRouter = {
   permission: ['超级管理员独有权限'],
   children: [
     {
-      route: '/admin/user/list',
-      name: null,
-      title: '用户管理',
-      type: 'folder', // 取 route 为默认加载页
-      icon: 'iconfont icon-huiyuanguanli',
-      filePath: 'views/admin/user/',
+      title: '分组管理',
+      type: 'view',
+      name: 'group',
+      route: '/admin/group/list',
+      filePath: 'views/admin/group/list.vue',
       inNav: true,
-      children: [
-        {
-          title: '用户列表',
-          type: 'view',
-          name: 'userList',
-          route: '/admin/user/list',
-          filePath: 'views/admin/user/UserList.vue',
-          inNav: true,
-          icon: 'iconfont icon-huiyuanguanli',
-          permission: [],
-        }
-      ],
+      icon: 'iconfont icon-huiyuanguanli'
     },
     {
-      route: '/admin/group/list',
-      name: null,
-      title: '分组管理',
-      type: 'tab', // 取 route 为默认加载页
-      icon: null,
-      filePath: 'views/admin/group',
+      title: '用户管理',
+      type: 'view',
+      name: 'user',
+      route: '/admin/user/list',
+      filePath: 'views/admin/user/list.vue',
       inNav: true,
-      children: [
-        {
-          route: '/admin/group/list',
-          type: 'view',
-          name: 'groupList',
-          inNav: true,
-          filePath: 'views/admin/group/GroupList.vue',
-          title: '分组列表',
-          icon: 'iconfont icon-huiyuanguanli',
-          permission: ['超级管理员独有权限'],
-        }
-      ],
+      icon: 'iconfont icon-huiyuanguanli',
     },
   ],
 }

@@ -2,7 +2,6 @@ import adminConfig from './admin'
 import shopConfig from './shop'
 import marketConfig from './market'
 import goodsConfig from './goods'
-import skuConfig from './sku'
 import orderConfig from './order'
 import pluginsConfig from './plugins'
 import Utils from '@/lin/utils/util'
@@ -10,13 +9,13 @@ import Utils from '@/lin/utils/util'
 // eslint-disable-next-line import/no-mutable-exports
 let homeRouter = [
   {
-    title: '数据',
+    title: '首页',
     type: 'view',
     name: Symbol('dashboard'),
     route: '/dashboard',
     filePath: 'views/dashboard/dashboard.vue',
     inNav: true,
-    icon: 'el-icon-s-data',
+    icon: 'el-icon-s-home',
     order: 0,
   },
   {
@@ -31,7 +30,6 @@ let homeRouter = [
   shopConfig,
   goodsConfig,
   orderConfig,
-  skuConfig,
   marketConfig,
   adminConfig,
 ]

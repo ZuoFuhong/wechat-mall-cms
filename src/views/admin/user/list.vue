@@ -73,7 +73,7 @@
 
 <script>
 import admin from '@/models/admin'
-import UserEdit from './UserEdit'
+import UserEdit from './edit'
 
 export default {
   components: {
