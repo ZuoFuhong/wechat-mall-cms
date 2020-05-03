@@ -5,17 +5,17 @@
         <el-row>
           <el-form :model="searchForm" status-icon ref="searchForm" label-width="100px" @submit.native.prevent>
             <el-col :lg="5">
-              <el-form-item label="商品标题" prop="title" style="margin-bottom: 0 !important;">
+              <el-form-item label="商品标题" prop="title">
                 <el-input size="medium" v-model="searchForm.goodsName" maxlength="15" placeholder="搜索商品名"></el-input>
               </el-form-item>
             </el-col>
             <el-col :lg="5">
-              <el-form-item label="商品分类" prop="categoryId" style="margin-bottom: 0 !important;">
+              <el-form-item label="商品分类" prop="categoryId">
                   <el-cascader v-model="optionCategory" :props="categoryProps" clearable @change="handleOptionCategory"></el-cascader>
               </el-form-item>
             </el-col>
             <el-col :lg="5">
-              <el-form-item label="上下架" prop="categoryId" style="margin-bottom: 0 !important;">
+              <el-form-item label="上下架" prop="categoryId">
                   <el-select clearable v-model="searchForm.online" placeholder="请选择">
                     <el-option
                       v-for="item in onlineStatus"

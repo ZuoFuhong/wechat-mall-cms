@@ -9,14 +9,32 @@ const orderRouter = {
   inNav: true,
   children: [
     {
-      title: '待发货',
+      title: '订单列表',
       type: 'view',
-      name: 'goodsList',
+      name: 'orderList',
       route: '/order/list',
       filePath: 'views/order/list.vue',
       inNav: true,
       icon: '',
     },
+    {
+      title: '订单详情',
+      type: 'view',
+      name: 'orderDetail',
+      route: '/order/detail/:orderNo',
+      filePath: 'views/order/detail.vue',
+      inNav: false,
+      icon: ''
+    },
+    {
+      title: '退款申请',
+      type: 'view',
+      name: 'orderRefund',
+      route: '/order/list',
+      filePath: 'views/order/list.vue',
+      inNav: true,
+      icon: '',
+    }
   ],
 }
 
