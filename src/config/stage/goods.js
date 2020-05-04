@@ -16,6 +16,7 @@ const spuRouter = {
       filePath: 'views/goods/category/list.vue',
       inNav: true,
       icon: '',
+      permission: ['查看商品分类']
     },
     {
       title: '子分类',
@@ -34,6 +35,7 @@ const spuRouter = {
       filePath: 'views/goods/spec/list.vue',
       inNav: true,
       icon: '',
+      permission: ['查看规格']
     },
     {
       title: '编辑规格',
@@ -52,6 +54,7 @@ const spuRouter = {
       filePath: 'views/goods/GoodsList.vue',
       inNav: true,
       icon: 'el-icon-sell',
+      permission: ['查看商品']
     },
     {
       title: '库存管理',
@@ -61,6 +64,7 @@ const spuRouter = {
       filePath: 'views/goods/sku/list.vue',
       inNav: true,
       icon: 'el-icon-truck',
+      permission: ['查看库存']
     },
   ],
 }

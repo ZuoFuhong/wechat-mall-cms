@@ -16,6 +16,7 @@ const shopRouter = {
       filePath: 'views/shop/banner/index.vue',
       inNav: true,
       icon: 'el-icon-postcard',
+      permission: ['查看Banner']
     },
     {
       title: '八宫格',
@@ -25,6 +26,7 @@ const shopRouter = {
       filePath: 'views/shop/grid_category/index.vue',
       inNav: true,
       icon: 'el-icon-menu',
+      permission: ['查看宫格']
     }
   ],
 }

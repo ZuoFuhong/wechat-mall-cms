@@ -16,6 +16,7 @@ const marketRouter = {
       filePath: 'views/market/coupon/list.vue',
       inNav: true,
       icon: 'el-icon-s-ticket',
+      permission: ['查看优惠券']
     }
   ],
 }

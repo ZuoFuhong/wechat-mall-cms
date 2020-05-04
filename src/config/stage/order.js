@@ -16,6 +16,7 @@ const orderRouter = {
       filePath: 'views/order/list.vue',
       inNav: true,
       icon: '',
+      permission: ['查看订单']
     },
     {
       title: '订单详情',
