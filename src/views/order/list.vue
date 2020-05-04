@@ -6,7 +6,7 @@
           <el-form :model="searchForm" status-icon ref="searchForm" label-width="100px" @submit.native.prevent>
             <el-col :lg="4">
               <el-form-item label="订单状态" prop="status">
-                <el-select v-model="searchForm.status" @clear="clearOrderStatus" clearable placeholder="请选择">
+                <el-select v-model="searchForm.status"  @clear="clearOrderStatus" @clearable="false" placeholder="请选择">
                   <el-option
                     v-for="item in orderStatus"
                     :key="item.value"
@@ -31,7 +31,7 @@
             </el-col>
             <el-col :lg="6">
               <el-input placeholder="请输入关键字" v-model="searchForm.keyword" maxlength="40" show-word-limit class="input-with-select">
-                <el-select style="width: 120px; color: black;" @clear="clearSearchType" clearable v-model="searchForm.searchType" slot="prepend" placeholder="请选择">
+                <el-select style="width: 120px; color: black;" @clear="clearSearchType" @clearable="false" v-model="searchForm.searchType" slot="prepend" placeholder="请选择">
                   <el-option
                   v-for="item in searchTypes"
                   :key="item.value"
@@ -114,8 +114,8 @@ export default {
     return {
       searchForm: {
         placeTime: [],
-        status: null,
-        searchType: null,
+        status: 1,
+        searchType: 1,
         keyword: ''
       },
       orderStatus: [
