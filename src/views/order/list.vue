@@ -128,11 +128,11 @@ export default {
           label: '待收货'
         },
         {
-          value: 3,
+          value: 0,
           label: '待付款'
         },
         {
-          value: 4,
+          value: 3,
           label: '已完成'
         }
       ],
@@ -206,8 +206,8 @@ export default {
         endTime = moment(this.searchForm.placeTime[1]).format('YYYY-MM-DD HH:mm:ss')
       }
       const res = await order.getOrderList({
-        status: this.searchForm.status || -999,
-        searchType: this.searchForm.searchType || -999,
+        status: this.searchForm.status,
+        searchType: this.searchForm.searchType,
         keyword: this.searchForm.keyword,
         startTime,
         endTime,
@@ -230,8 +230,8 @@ export default {
         endTime = moment(this.searchForm.placeTime[1]).format('YYYY-MM-DD HH:mm:ss')
       }
       const res = await order.exportOrderExcel({
-        status: this.searchForm.status || -999,
-        searchType: this.searchForm.searchType || -999,
+        status: this.searchForm.status,
+        searchType: this.searchForm.searchType,
         keyword: this.searchForm.keyword,
         startTime,
         endTime
@@ -289,8 +289,7 @@ export default {
       })
     },
     formatAddress(row) {
-      const address = JSON.parse(row.address)
-      return `${address.contacts}（${address.mobile}）`
+      return `${row.address.contacts}（${row.address.mobile}）`
     },
     formatOrderAmount(row) {
       return row.goodsAmount + row.dispatchAmount
