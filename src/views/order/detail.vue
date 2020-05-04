@@ -15,13 +15,13 @@
         <p class="item"><span class="item-title">买家：</span>{{buyer}}</p>
         <p class="item"><span class="item-title">收货人：</span>{{takeAddress}}</p>
         <p class="item"><span class="item-title">备注：</span>{{orderInfo.remark}}</p>
-        <el-button size="mini" type="primary" class="edit-btn" @click="handleEditAddress">修改订单取货信息</el-button>
+        <!-- <el-button size="mini" type="primary" class="edit-btn" @click="handleEditAddress">修改订单取货信息</el-button> -->
       </el-col>
       <el-col :span="12" class="right">
         <div v-show="orderInfo.status === 0">
           <p class="order-status"><span class="title">订单状态：</span><span class="status">待付款</span>（等待买家付款）</p>
           <el-button size="mini" type="primary" class="confirm-btn" @click="confirmCollection">确认付款</el-button>
-          <el-button size="mini" type="danger" class="change-price-btn" @click="handleChangePrice">订单改价</el-button>
+          <!-- <el-button size="mini" type="danger" class="change-price-btn" @click="handleChangePrice">订单改价</el-button> -->
         </div>
         <div v-show="orderInfo.status === 1">
           <p class="order-status"><span class="title">订单状态：</span><span class="status">待发货</span>（买家已经付款，请商家尽快发货）</p>
@@ -123,7 +123,7 @@ export default {
   },
   methods: {
     handleEditAddress() {
-      console.log('编辑')
+      this.dialogTableVisible = true
     },
     formatterGoodsAmount(row) {
       return row.price * row.num
