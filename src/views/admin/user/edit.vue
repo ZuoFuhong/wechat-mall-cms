@@ -69,9 +69,9 @@ export default {
       if (!value) {
         return callback(new Error('用户名不能为空'))
       }
-      const reg = new RegExp(/^[a-zA-Z0-9]{6,16}$/)
+      const reg = new RegExp(/^[a-zA-Z0-9]{5,16}$/)
       if (!reg.test(value)) {
-        return callback(new Error('用户名必须由字母或数字组成的6~16字符，区分大小写'))
+        return callback(new Error('用户名必须由字母或数字组成的5~16字符，区分大小写'))
       }
       callback()
     }
