@@ -22,7 +22,7 @@
           <el-table-column label="操作" fixed="right" width="180">
             <template slot-scope="scope">
               <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>
-              <el-button plain size="mini" @click="handleDelete(scope.row)" type="danger">删除</el-button>
+              <el-button plain size="mini" v-auth="['管理规格']" @click="handleDelete(scope.row)" type="danger">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -61,8 +61,8 @@
                   </el-switch>
                 </el-form-item>
                 <el-form-item class="submit">
-                  <el-button type="primary" @click="submitForm('dialogForm')">保 存</el-button>
-                  <el-button @click="resetForm('dialogForm')">重 置</el-button>
+                  <el-button v-auth="['管理规格']" type="primary" @click="submitForm('dialogForm')">保 存</el-button>
+                  <el-button v-auth="['管理规格']" @click="resetForm('dialogForm')">重 置</el-button>
                 </el-form-item>
               </el-form>
             </el-col>

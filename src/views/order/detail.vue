@@ -20,17 +20,17 @@
       <el-col :span="12" class="right">
         <div v-show="orderInfo.status === 0">
           <p class="order-status"><span class="title">订单状态：</span><span class="status">待付款</span>（等待买家付款）</p>
-          <el-button size="mini" type="primary" class="confirm-btn" @click="confirmCollection">确认付款</el-button>
+          <el-button v-auth="['管理订单']" size="mini" type="primary" class="confirm-btn" @click="confirmCollection">确认付款</el-button>
           <!-- <el-button size="mini" type="danger" class="change-price-btn" @click="handleChangePrice">订单改价</el-button> -->
         </div>
         <div v-show="orderInfo.status === 1">
           <p class="order-status"><span class="title">订单状态：</span><span class="status">待发货</span>（买家已经付款，请商家尽快发货）</p>
-          <el-button size="mini" type="primary" class="confirm-btn" @click="confirmDelivery">确认发货</el-button>
+          <el-button v-auth="['管理订单']" size="mini" type="primary" class="confirm-btn" @click="confirmDelivery">确认发货</el-button>
           <p class="hint">友情提示：如果无法进行发货，请及时联系买家进行妥善处理</p>
         </div>
         <div v-show="orderInfo.status === 2">
           <p class="order-status"><span class="title">订单状态：</span><span class="status">待收货</span>（商家已发货，等待买家收货并交易完成）</p>
-          <el-button size="mini" type="primary" class="confirm-btn" @click="confirmReceipt">确认收货</el-button>
+          <el-button v-auth="['管理订单']" size="mini" type="primary" class="confirm-btn" @click="confirmReceipt">确认收货</el-button>
           <p class="hint">友情提示： 请及时关注物流状态，确保买家及时收到商品; 如果买家未收到货物或有退换货请求，请及时联系买家妥善处理</p>
         </div>
         <div v-show="orderInfo.status === 3">

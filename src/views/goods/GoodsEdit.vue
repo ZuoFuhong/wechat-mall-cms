@@ -73,8 +73,8 @@
                 </el-switch>
               </el-form-item>
               <el-form-item class="submit">
-                <el-button type="primary" @click="submitForm('form')">保 存</el-button>
-                <el-button @click="resetForm('form')">重 置</el-button>
+                <el-button v-auth="['管理商品']" type="primary" @click="submitForm('form')">保 存</el-button>
+                <el-button v-auth="['管理商品']" @click="resetForm('form')">重 置</el-button>
               </el-form-item>
             </el-form>
           </el-col>

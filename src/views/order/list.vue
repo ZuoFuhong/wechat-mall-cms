@@ -74,15 +74,15 @@
               <template slot-scope="scope">
                 <div v-show="scope.row.status === 1">
                   <span style="margin-right: 10px; color: #409EFF;">待发货</span>
-                  <el-button plain size="mini" @click="confirmDelivery(scope.row)" type="primary">确认发货</el-button>
+                  <el-button v-auth="['管理订单']" plain size="mini" @click="confirmDelivery(scope.row)" type="primary">确认发货</el-button>
                 </div>
                 <div v-show="scope.row.status === 2">
                   <span style="margin-right: 10px; color: #E6A23C;">待收货</span>
-                  <el-button plain size="mini" @click="confirmReceipt(scope.row)" type="primary">确认收货</el-button>
+                  <el-button v-auth="['管理订单']" plain size="mini" @click="confirmReceipt(scope.row)" type="primary">确认收货</el-button>
                 </div>
                 <div v-show="scope.row.status === 0">
                   <span style="margin-right: 10px; color: #F56C6C;">待付款</span>
-                  <el-button plain size="mini" @click="confirmCollection(scope.row)" type="primary">确认付款</el-button>
+                  <el-button v-auth="['管理订单']" plain size="mini" @click="confirmCollection(scope.row)" type="primary">确认付款</el-button>
                 </div>
                 <div v-show="scope.row.status === 3">
                   <span style="margin-right: 10px; color: #67C23A;">已完成</span>

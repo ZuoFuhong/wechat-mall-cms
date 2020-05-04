@@ -27,7 +27,7 @@
             <el-table-column label="操作" fixed="right" width="180">
               <template slot-scope="scope">
                 <el-button plain size="mini" @click="handleEdit(scope.row)" type="primary">编辑</el-button>
-                <el-button plain size="mini" @click="handleDelete(scope.row)" type="danger">删除</el-button>
+                <el-button plain size="mini" v-auth="['管理商品分类']" @click="handleDelete(scope.row)" type="danger">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
