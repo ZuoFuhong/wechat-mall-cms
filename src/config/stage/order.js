@@ -26,15 +26,15 @@ const orderRouter = {
       inNav: false,
       icon: ''
     },
-    {
-      title: '退款申请',
-      type: 'view',
-      name: 'orderRefund',
-      route: '/order/list',
-      filePath: 'views/order/list.vue',
-      inNav: true,
-      icon: '',
-    }
+    // {
+    //   title: '退款申请',
+    //   type: 'view',
+    //   name: 'orderRefund',
+    //   route: '/order/list',
+    //   filePath: 'views/order/list.vue',
+    //   inNav: true,
+    //   icon: '',
+    // }
   ],
 }
 
