@@ -1,6 +1,6 @@
-## 微信小程序商品-CMS端
+## 微信小程序商城-CMS端
 
-本项目是 [wechat-mall](https://github.com/ZuoFuhong/wechat-mall-miniapp) 微信小程序商城 配套的CMS管理后台，基于 [Lin-CMS](https://github.com/TaleLin/lin-cms-vue) 二次开发。
+本项目是 [wechat-mall](https://github.com/ZuoFuhong/wechat-mall-miniapp) 微信小程序商城 配套的`CMS管理后台`，基于 [Lin-CMS](https://github.com/TaleLin/lin-cms-vue) 二次开发。
 
 ### Deployment
 
